@@ -20,7 +20,7 @@ def prepare_training_data(titles_path, training_set_1_dir_path, training_set_2_p
     train_data = []
 
     for title in titles:
-        data_slice = json_to_spacy_train_data(training_set_1_dir_path + title)
+        data_slice = json_to_spacy_train_data(os.path.join(training_set_1_dir_path, title))
         train_data.extend(data_slice)
 
     data_second_set = json_to_spacy_train_data(training_set_2_path)

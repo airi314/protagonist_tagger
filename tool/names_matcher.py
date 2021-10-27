@@ -67,17 +67,17 @@ class NamesMatcher:
         if filename is not None:
             if save_doc:
                 json_data = gold.docs_to_json(doc)
-                with open(results_dir + "\\docs\\" + filename, 'w') as result:
+                with open(os.path.join(results_dir, "docs", filename), 'w') as result:
                     json.dump(json_data, result)
 
             if save_ratios:
-                write_list_to_file(results_dir + "\\ratios\\" + filename, matches_table)
+                write_list_to_file(os.path.join(results_dir, "ratios", filename), matches_table)
 
             if tests_variant:
-                with open(results_dir + filename, 'w', encoding='utf8') as result:
+                with open(os.path.join(results_dir, filename), 'w', encoding='utf8') as result:
                     json.dump(train_data, result, ensure_ascii=False)
             else:
-                with open(results_dir + filename, 'w') as result:
+                with open(os.path.join(results_dir, filename), 'w') as result:
                     json.dump(train_data, result)
 
         if displacy_option:
@@ -87,8 +87,8 @@ class NamesMatcher:
         matches_table, train_data, doc = self.recognize_person_entities(testing_string, characters)
 
         if filename is not None:
-            write_list_to_file(results_dir + "\\ratios\\" + filename + "_test", matches_table)
-            with open(results_dir + filename + "_test_spacy.json", 'w') as result:
+            write_list_to_file(os.path.join(results_dir, "ratios", filename + "_test"), matches_table)
+            with open(os.path.join(results_dir, filename + "_test_spacy.json"), 'w') as result:
                 json.dump(train_data, result)
 
         if displacy_option:

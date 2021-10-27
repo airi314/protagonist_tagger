@@ -8,13 +8,13 @@ from tool.data_generator import data_from_json
 
 
 def save_to_pickle(filename, data, stats_path):
-    pickle_out = open(stats_path + filename, "wb")
+    pickle_out = open(os.path.join(stats_path, filename), "wb")
     pickle.dump(data, pickle_out)
     pickle_out.close()
 
 
 def load_from_pickle(filename, stats_path):
-    file = open(stats_path + filename, "rb")
+    file = open(os.path.join(stats_path, filename), "rb")
     data = pickle.load(file)
     return data
 
@@ -65,8 +65,8 @@ def calculate_metrics(gold, matcher):
 
 def create_and_save_stats(title, gold_standard_path, result_path, stats_path, ner=False):
     # entities_gold, _ = data_from_json(gold_standard_path + title + ".json")
-    entities_gold, _ = data_from_json(gold_standard_path + title)
-    entities_matcher, _ = data_from_json(result_path + title)
+    entities_gold, _ = data_from_json(os.path.join(gold_standard_path, title))
+    entities_matcher, _ = data_from_json(os.path.join(result_path, title))
 
     gold, matcher = organize_entities(entities_gold, entities_matcher)
 
@@ -84,8 +84,8 @@ def create_overall_stats(titles, gold_standard_path, result_path, stats_path, ne
 
     for title in titles:
         # entities_gold, _ = data_from_json(gold_standard_path + title + ".json")
-        entities_gold, _ = data_from_json(gold_standard_path + title)
-        entities_matcher, _ = data_from_json(result_path + title)
+        entities_gold, _ = data_from_json(os.path.join(gold_standard_path, title))
+        entities_matcher, _ = data_from_json(os.path.join(result_path, title))
 
         gold, matcher = organize_entities(entities_gold, entities_matcher)
         gold_overall.extend(gold)

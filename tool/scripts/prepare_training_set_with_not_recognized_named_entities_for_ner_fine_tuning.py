@@ -12,7 +12,7 @@ import json
 # not_recognized_named_entities_person_file_path - path to .txt file containing all the named entities of category
 #       person not recognized by standard NER model
 def get_not_recognized_entities(title, not_recognized_named_entities_person_file_path):
-    named_entities = read_file_to_list(not_recognized_named_entities_person_file_path + title)
+    named_entities = read_file_to_list(os.path.join(not_recognized_named_entities_person_file_path, title))
     return named_entities
 
 
@@ -26,7 +26,7 @@ def get_not_recognized_entities(title, not_recognized_named_entities_person_file
 # training_set_dir - path to the directory where the generated (not annotated yet) training set should be saved
 def create_ner_training_set(title, novels_texts_file_path, named_entities, sentences_per_entity, training_set_dir):
     nlp = spacy.load("en_core_web_sm")
-    novel_text = read_file(novels_texts_file_path + title)
+    novel_text = read_file(os.path.join(novels_texts_file_path, title))
     doc = nlp(novel_text)
     potential_sentences = {}
     temporal_named_entities = copy.copy(named_entities)
@@ -52,7 +52,7 @@ def create_ner_training_set(title, novels_texts_file_path, named_entities, sente
         selected_sentences.extend([sent for sent in random.sample(entity_potential_sentences, k=count)])
 
     test_sample = "\n".join(selected_sentences)
-    write_text_to_file(training_set_dir + "\\not_annotated_training_set\\" + title, test_sample)
+    write_text_to_file(os.path.join(training_set_dir, "not_annotated_training_set", title), test_sample)
 
     return selected_sentences
 
@@ -114,10 +114,11 @@ def main(titles_path, not_recognized_named_entities_person_file_path, novels_tex
         named_entites = get_not_recognized_entities(title, not_recognized_named_entities_person_file_path)
         ner_training_set = create_ner_training_set(title, novels_texts_file_path, named_entites, sentences_per_entity, training_set_dir)
         training_set = annotate_training_set(ner_training_set, named_entites)
-        with open(training_set_dir + title, 'w') as result:
+        with open(os.path.join(training_set_dir, title), 'w') as result:
             json.dump(training_set, result)
         print("One novel done!")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
+    main(sys.argv[1], sys.argv[
+        2], sys.argv[3], int(sys.argv[4]), sys.argv[5])

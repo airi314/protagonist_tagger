@@ -6,14 +6,14 @@ from tool.file_and_directory_management import read_file_to_list, read_file, rea
 
 
 def get_complete_data_about_novel(title, characters_lists_dir_path, novels_texts_dir_path):
-    characters = read_file_to_list(characters_lists_dir_path + title)
-    novel_text = read_file(novels_texts_dir_path + title)
+    characters = read_file_to_list(os.path.join(characters_lists_dir_path, title))
+    novel_text = read_file(os.path.join(novels_texts_dir_path, title))
     return characters, novel_text
 
 
 def get_test_data_for_novel(title, characters_lists_dir_path, testing_sets_dir_path):
-    characters = read_file_to_list(characters_lists_dir_path + title)
-    text = read_sentences_from_file(testing_sets_dir_path + title)
+    characters = read_file_to_list(os.path.join(characters_lists_dir_path, title))
+    text = read_sentences_from_file(os.path.join(testing_sets_dir_path, title))
     return characters, text
 
 

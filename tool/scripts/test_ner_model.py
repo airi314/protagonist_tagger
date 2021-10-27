@@ -21,9 +21,9 @@ def generalize_tags(data):
 # generated_data_dir - directory where generated data should be stored
 def generate_generalized_data(titles, names_gold_standard_dir_path, generated_data_dir):
     for title in titles:
-        test_data = json_to_spacy_train_data(names_gold_standard_dir_path + title + ".json")
+        test_data = json_to_spacy_train_data(os.path.join(names_gold_standard_dir_path, title + ".json"))
         generalized_test_data = generalize_tags(test_data)
-        spacy_format_to_json(generated_data_dir + "generated_gold_standard\\", generalized_test_data, title)
+        spacy_format_to_json(os.path.join(generated_data_dir, "generated_gold_standard"), generalized_test_data, title)
 
 
 def test_ner(data, model_dir=None):
@@ -64,10 +64,10 @@ def main(titles_path, names_gold_standard_dir_path, testing_data_dir_path, gener
     generate_generalized_data(titles, names_gold_standard_dir_path, generated_data_dir)
 
     for title in titles:
-        test_data = read_sentences_from_file(testing_data_dir_path + title)
+        test_data = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
         ner_result = test_ner(test_data, ner_model_dir_path)
 
-        path = generated_data_dir + "ner_model_annotated\\" + title
+        path = os.path.join(generated_data_dir, "ner_model_annotated", title)
 
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
