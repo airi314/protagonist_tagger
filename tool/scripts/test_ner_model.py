@@ -67,7 +67,7 @@ def main(titles_path, names_gold_standard_dir_path, testing_data_dir_path, gener
         test_data = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
         ner_result = test_ner(test_data, ner_model_dir_path)
 
-        path = os.path.join(generated_data_dir, "ner_model_annotated", title)
+        path = os.path.join(generated_data_dir, "ner_model_annotated", title + '.json')
 
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
