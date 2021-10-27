@@ -11,8 +11,10 @@ import json
 #       characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
 # not_recognized_named_entities_person_file_path - path to .txt file containing all the named entities of category
 #       person not recognized by standard NER model
-def get_not_recognized_entities(title, not_recognized_named_entities_person_file_path):
-    named_entities = read_file_to_list(os.path.join(not_recognized_named_entities_person_file_path, title))
+def get_not_recognized_entities(
+        title, not_recognized_named_entities_person_file_path):
+    named_entities = read_file_to_list(os.path.join(
+        not_recognized_named_entities_person_file_path, title))
     return named_entities
 
 
@@ -23,8 +25,10 @@ def get_not_recognized_entities(title, not_recognized_named_entities_person_file
 #       and that should be included in the training set
 # sentences_per_entity - the upper limit for number of sentences with each entity that should be included in the
 #       training set
-# training_set_dir - path to the directory where the generated (not annotated yet) training set should be saved
-def create_ner_training_set(title, novels_texts_file_path, named_entities, sentences_per_entity, training_set_dir):
+# training_set_dir - path to the directory where the generated (not
+# annotated yet) training set should be saved
+def create_ner_training_set(title, novels_texts_file_path,
+                            named_entities, sentences_per_entity, training_set_dir):
     nlp = spacy.load("en_core_web_sm")
     novel_text = read_file(os.path.join(novels_texts_file_path, title))
     doc = nlp(novel_text)
@@ -47,12 +51,19 @@ def create_ner_training_set(title, novels_texts_file_path, named_entities, sente
                 break
 
     selected_sentences = []
-    for entity_potential_sentences in [potential_sentences[entity] for entity in named_entities]:
+    for entity_potential_sentences in [
+            potential_sentences[entity] for entity in named_entities]:
         count = min(sentences_per_entity, len(entity_potential_sentences))
-        selected_sentences.extend([sent for sent in random.sample(entity_potential_sentences, k=count)])
+        selected_sentences.extend(
+            [sent for sent in random.sample(entity_potential_sentences, k=count)])
 
     test_sample = "\n".join(selected_sentences)
-    write_text_to_file(os.path.join(training_set_dir, "not_annotated_training_set", title), test_sample)
+    write_text_to_file(
+        os.path.join(
+            training_set_dir,
+            "not_annotated_training_set",
+            title),
+        test_sample)
 
     return selected_sentences
 
@@ -107,12 +118,20 @@ def annotate_training_set(data, names_entities):
 # novels_texts_file_path - path to .txt file containing full text of the novel
 # sentences_per_entity - the upper limit for number of sentences with each entity that should be included in the
 #       training set
-# training_set_dir - path to the directory where the generated training set should be saved
-def main(titles_path, not_recognized_named_entities_person_file_path, novels_texts_file_path, sentences_per_entity, training_set_dir):
+# training_set_dir - path to the directory where the generated training
+# set should be saved
+def main(titles_path, not_recognized_named_entities_person_file_path,
+         novels_texts_file_path, sentences_per_entity, training_set_dir):
     titles = read_file_to_list(titles_path)
     for title in titles:
-        named_entites = get_not_recognized_entities(title, not_recognized_named_entities_person_file_path)
-        ner_training_set = create_ner_training_set(title, novels_texts_file_path, named_entites, sentences_per_entity, training_set_dir)
+        named_entites = get_not_recognized_entities(
+            title, not_recognized_named_entities_person_file_path)
+        ner_training_set = create_ner_training_set(
+            title,
+            novels_texts_file_path,
+            named_entites,
+            sentences_per_entity,
+            training_set_dir)
         training_set = annotate_training_set(ner_training_set, named_entites)
         with open(os.path.join(training_set_dir, title), 'w') as result:
             json.dump(training_set, result)

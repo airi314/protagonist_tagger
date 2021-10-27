@@ -11,7 +11,8 @@ def mkdir(path):
     except OSError as exc:
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
-        else: raise
+        else:
+            raise
 
 
 def open_path(path, mode):

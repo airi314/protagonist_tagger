@@ -13,11 +13,20 @@ from tool.ner_metrics import characters_tags_metrics, ner_metrics
 # protagonist_tagger - if true metrics are calculated for sets annotated with names of literary characters (computing
 #       metrics for protagonistTagger performance); if false metrics are calculated for general tag person (computing
 #       metrics for NER model performance)
-def main(titles_path, gold_standard_dir_path, testing_set_dir_path, stats_dir, protagonist_tagger=True):
+def main(titles_path, gold_standard_dir_path,
+         testing_set_dir_path, stats_dir, protagonist_tagger=True):
     if protagonist_tagger:
-        characters_tags_metrics(titles_path, gold_standard_dir_path, testing_set_dir_path, stats_dir)
+        characters_tags_metrics(
+            titles_path,
+            gold_standard_dir_path,
+            testing_set_dir_path,
+            stats_dir)
     else:
-        ner_metrics(titles_path, gold_standard_dir_path, testing_set_dir_path, stats_dir)
+        ner_metrics(
+            titles_path,
+            gold_standard_dir_path,
+            testing_set_dir_path,
+            stats_dir)
 
 
 if __name__ == "__main__":

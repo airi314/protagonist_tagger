@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
 import tabulate
 import pickle
+import os
 
 from tool.file_and_directory_management import read_file_to_list
 from tool.data_generator import data_from_json
@@ -43,7 +44,8 @@ def calculate_metrics_ner(gold, matcher):
     characters = list(dict.fromkeys(gold + matcher))
     characters.remove('')
 
-    result = precision_recall_fscore_support(np.array(gold), np.array(matcher), labels=(characters))
+    result = precision_recall_fscore_support(
+        np.array(gold), np.array(matcher), labels=(characters))
 
     support = result[3]
     result = [np.round(a, 2) for a in result[0:3]]
@@ -56,17 +58,23 @@ def calculate_metrics(gold, matcher):
     characters = list(dict.fromkeys(gold + matcher))
     characters.remove('')
 
-    result = precision_recall_fscore_support(np.array(gold), np.array(matcher), labels=(characters), average='weighted')
+    result = precision_recall_fscore_support(
+        np.array(gold),
+        np.array(matcher),
+        labels=(characters),
+        average='weighted')
 
     result = [np.round(a, 2) for a in result[0:3]]
 
     return result
 
 
-def create_and_save_stats(title, gold_standard_path, result_path, stats_path, ner=False):
-    # entities_gold, _ = data_from_json(gold_standard_path + title + ".json")
-    entities_gold, _ = data_from_json(os.path.join(gold_standard_path, title))
-    entities_matcher, _ = data_from_json(os.path.join(result_path, title))
+def create_and_save_stats(title, gold_standard_path,
+                          result_path, stats_path, ner=False):
+    entities_gold, _ = data_from_json(
+        os.path.join(gold_standard_path, title + '.json'))
+    entities_matcher, _ = data_from_json(
+        os.path.join(result_path, title + '.json'))
 
     gold, matcher = organize_entities(entities_gold, entities_matcher)
 
@@ -78,14 +86,16 @@ def create_and_save_stats(title, gold_standard_path, result_path, stats_path, ne
     save_to_pickle(title, metrics, stats_path)
 
 
-def create_overall_stats(titles, gold_standard_path, result_path, stats_path, ner=False):
+def create_overall_stats(titles, gold_standard_path,
+                         result_path, stats_path, ner=False):
     gold_overall = []
     matcher_overall = []
 
     for title in titles:
-        # entities_gold, _ = data_from_json(gold_standard_path + title + ".json")
-        entities_gold, _ = data_from_json(os.path.join(gold_standard_path, title))
-        entities_matcher, _ = data_from_json(os.path.join(result_path, title))
+        entities_gold, _ = data_from_json(
+            os.path.join(gold_standard_path, title + '.json'))
+        entities_matcher, _ = data_from_json(
+            os.path.join(result_path, title + '.json'))
 
         gold, matcher = organize_entities(entities_gold, entities_matcher)
         gold_overall.extend(gold)
@@ -100,29 +110,51 @@ def create_overall_stats(titles, gold_standard_path, result_path, stats_path, ne
     return metrics
 
 
-def metrics_per_novel(titles_path, gold_standard_path, result_path, stats_path):
+def metrics_per_novel(titles_path, gold_standard_path,
+                      result_path, stats_path):
     titles = read_file_to_list(titles_path)
     for title in titles:
-        create_and_save_stats(title, gold_standard_path, result_path, stats_path)
+        create_and_save_stats(
+            title,
+            gold_standard_path,
+            result_path,
+            stats_path)
 
     for title in titles:
         metrics = load_from_pickle(title, stats_path)
         print("*****************")
         print(title)
-        print(tabulate.tabulate(metrics[1:], headers=metrics[0], tablefmt='orgtbl'))
+        print(tabulate.tabulate(metrics[1:],
+                                headers=metrics[0], tablefmt='orgtbl'))
         print("*****************")
 
 
 def overall_metrics(titles_path, gold_standard_path, result_path, stats_path):
     titles = read_file_to_list(titles_path)
-    metrics = create_overall_stats(titles, gold_standard_path, result_path, stats_path)
-    print(tabulate.tabulate(metrics[1:], headers=metrics[0], tablefmt='orgtbl'))
+    metrics = create_overall_stats(
+        titles,
+        gold_standard_path,
+        result_path,
+        stats_path)
+    print(tabulate.tabulate(metrics[1:],
+                            headers=metrics[0], tablefmt='orgtbl'))
 
 
-def characters_tags_metrics(titles_path, gold_standard_path, result_path, stats_path):
+def characters_tags_metrics(
+        titles_path, gold_standard_path, result_path, stats_path):
     titles = read_file_to_list(titles_path)
+
+    print('characters_tags_metrics')
+    if not os.path.exists(stats_path):
+        os.makedirs(stats_path)
+
     for title in titles:
-        create_and_save_stats(title, gold_standard_path, result_path, stats_path, ner=False)
+        create_and_save_stats(
+            title,
+            gold_standard_path,
+            result_path,
+            stats_path,
+            ner=False)
 
     metrics_table = []
     headers = ["Novel title", "precision", "recall", "F-measure"]
@@ -132,15 +164,31 @@ def characters_tags_metrics(titles_path, gold_standard_path, result_path, stats_
         metrics_title = [title].__add__([m for m in metrics])
         metrics_table.append(metrics_title)
 
-    metrics = create_overall_stats(titles, gold_standard_path, result_path, stats_path, ner=False)
-    metrics_table.append(["*** overall results ***"].__add__([m for m in metrics]))
+    metrics = create_overall_stats(
+        titles,
+        gold_standard_path,
+        result_path,
+        stats_path,
+        ner=False)
+    metrics_table.append(
+        ["*** overall results ***"].__add__([m for m in metrics]))
     print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex'))
 
 
 def ner_metrics(titles_path, gold_standard_path, result_path, stats_path):
     titles = read_file_to_list(titles_path)
+
+    print('ner_metrics')
+    if not os.path.exists(stats_path):
+        os.makedirs(stats_path)
+
     for title in titles:
-        create_and_save_stats(title, gold_standard_path, result_path, stats_path, ner=True)
+        create_and_save_stats(
+            title,
+            gold_standard_path,
+            result_path,
+            stats_path,
+            ner=True)
 
     metrics_table = []
     headers = ["Novel title", "precision", "recall", "F-measure", "support"]
@@ -150,6 +198,12 @@ def ner_metrics(titles_path, gold_standard_path, result_path, stats_path):
         metrics_title = [title].__add__([m[0] for m in metrics])
         metrics_table.append(metrics_title)
 
-    metrics = create_overall_stats(titles, gold_standard_path, result_path, stats_path, ner=True)
-    metrics_table.append(["*** overall results ***"].__add__([m[0] for m in metrics]))
+    metrics = create_overall_stats(
+        titles,
+        gold_standard_path,
+        result_path,
+        stats_path,
+        ner=True)
+    metrics_table.append(
+        ["*** overall results ***"].__add__([m[0] for m in metrics]))
     print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex'))

@@ -9,7 +9,8 @@ from tool.data_generator import json_to_spacy_train_data, spacy_format_to_json
 
 
 def generalize_tags(data):
-    return re.sub(r"([0-9]+,\s[0-9]+,\s')[a-zA-Z\s\.àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ]+", r"\1PERSON", str(data))
+    return re.sub(
+        r"([0-9]+,\s[0-9]+,\s')[a-zA-Z\s\.àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ]+", r"\1PERSON", str(data))
 
 
 # generalizing annotations - changing tags containing full names of literary characters to general tag PERSON
@@ -19,11 +20,18 @@ def generalize_tags(data):
 #       names of literary characters (names of files should be the same as corresponding novels titles on the titles
 #       list)
 # generated_data_dir - directory where generated data should be stored
-def generate_generalized_data(titles, names_gold_standard_dir_path, generated_data_dir):
+def generate_generalized_data(
+        titles, names_gold_standard_dir_path, generated_data_dir):
     for title in titles:
-        test_data = json_to_spacy_train_data(os.path.join(names_gold_standard_dir_path, title + ".json"))
+        test_data = json_to_spacy_train_data(os.path.join(
+            names_gold_standard_dir_path, title + ".json"))
         generalized_test_data = generalize_tags(test_data)
-        spacy_format_to_json(os.path.join(generated_data_dir, "generated_gold_standard"), generalized_test_data, title)
+        spacy_format_to_json(
+            os.path.join(
+                generated_data_dir,
+                "generated_gold_standard"),
+            generalized_test_data,
+            title)
 
 
 def test_ner(data, model_dir=None):
@@ -59,15 +67,23 @@ def test_ner(data, model_dir=None):
 #       testing process
 # ner_model_dir_path - path to directory containing fine-tune NER model to be tested; if None standard spacy NER
 #       model is used
-def main(titles_path, names_gold_standard_dir_path, testing_data_dir_path, generated_data_dir, ner_model_dir_path=None):
+def main(titles_path, names_gold_standard_dir_path,
+         testing_data_dir_path, generated_data_dir, ner_model_dir_path=None):
     titles = read_file_to_list(titles_path)
-    generate_generalized_data(titles, names_gold_standard_dir_path, generated_data_dir)
+    generate_generalized_data(
+        titles,
+        names_gold_standard_dir_path,
+        generated_data_dir)
 
     for title in titles:
-        test_data = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
+        test_data = read_sentences_from_file(
+            os.path.join(testing_data_dir_path, title))
         ner_result = test_ner(test_data, ner_model_dir_path)
 
-        path = os.path.join(generated_data_dir, "ner_model_annotated", title + '.json')
+        path = os.path.join(
+            generated_data_dir,
+            "ner_model_annotated",
+            title + '.json')
 
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))

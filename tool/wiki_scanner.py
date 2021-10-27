@@ -69,7 +69,8 @@ def standarize_name_of_character(name):
             new_name_1 = elements[0]
             new_name_2 = elements[2]
         else:
-            separator_index = elements.index("&" if new_char.find("&") > -1 else "and")
+            separator_index = elements.index(
+                "&" if new_char.find("&") > -1 else "and")
             name1 = elements[0:separator_index]
             name1.append(elements[-1])
             name2 = elements[separator_index + 1:]
@@ -85,6 +86,3 @@ def standarize_name_of_character(name):
         names.append(new_char)
 
     return names
-
-
-

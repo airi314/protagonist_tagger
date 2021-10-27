@@ -5,23 +5,30 @@ from tool.names_matcher import NamesMatcher
 from tool.file_and_directory_management import read_file_to_list, read_file, read_sentences_from_file
 
 
-def get_complete_data_about_novel(title, characters_lists_dir_path, novels_texts_dir_path):
-    characters = read_file_to_list(os.path.join(characters_lists_dir_path, title))
+def get_complete_data_about_novel(
+        title, characters_lists_dir_path, novels_texts_dir_path):
+    characters = read_file_to_list(
+        os.path.join(characters_lists_dir_path, title))
     novel_text = read_file(os.path.join(novels_texts_dir_path, title))
     return characters, novel_text
 
 
-def get_test_data_for_novel(title, characters_lists_dir_path, testing_sets_dir_path):
-    characters = read_file_to_list(os.path.join(characters_lists_dir_path, title))
+def get_test_data_for_novel(
+        title, characters_lists_dir_path, testing_sets_dir_path):
+    characters = read_file_to_list(
+        os.path.join(characters_lists_dir_path, title))
     text = read_sentences_from_file(os.path.join(testing_sets_dir_path, title))
     return characters, text
 
 
-def test_matcher(title, testing_string, precision, model_path, characters_lists_dir_path, novels_texts_dir_path):
-    characters, _ = get_complete_data_about_novel(title, characters_lists_dir_path, novels_texts_dir_path)
+def test_matcher(title, testing_string, precision, model_path,
+                 characters_lists_dir_path, novels_texts_dir_path):
+    characters, _ = get_complete_data_about_novel(
+        title, characters_lists_dir_path, novels_texts_dir_path)
 
     names_matcher = NamesMatcher(precision, model_path)
-    matches_table = names_matcher.matcher_test(characters, testing_string, title, displacy_option=True)
+    matches_table = names_matcher.matcher_test(
+        characters, testing_string, title, displacy_option=True)
 
     return matches_table
 
@@ -37,14 +44,17 @@ def test_matcher(title, testing_string, precision, model_path, characters_lists_
 #       files should be the same as titles on the list from titles_path)
 # texts_dir_path - directory of files containing texts from corresponding novels to be annotated (names of
 #       files should be the same as titles on the list from titles_path)
-def run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir, precision=75, tests_variant=True):
+def run_matcher(titles_path, model_path, characters_lists_dir_path,
+                texts_dir_path, results_dir, precision=75, tests_variant=True):
     names_matcher = NamesMatcher(precision, model_path)
     titles = read_file_to_list(titles_path)
     for title in titles:
         if tests_variant:
-            characters, text = get_test_data_for_novel(title, characters_lists_dir_path, texts_dir_path)
+            characters, text = get_test_data_for_novel(
+                title, characters_lists_dir_path, texts_dir_path)
         else:
-            characters, text = get_complete_data_about_novel(title, characters_lists_dir_path, texts_dir_path)
+            characters, text = get_complete_data_about_novel(
+                title, characters_lists_dir_path, texts_dir_path)
         matches_table = names_matcher.match_names_for_text(characters,
                                                            text,
                                                            results_dir,
@@ -63,9 +73,16 @@ def run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_pa
 #       files should be the same as titles on the list from titles_path)
 # texts_dir_path - directory of files containing texts from corresponding novels to be annotated (names of
 #       files should be the same as titles on the list from titles_path)
-# results_dir - path to the directory where the results of annotation process should be stored
-def main(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir):
-    run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir)
+# results_dir - path to the directory where the results of annotation
+# process should be stored
+def main(titles_path, model_path, characters_lists_dir_path,
+         texts_dir_path, results_dir):
+    run_matcher(
+        titles_path,
+        model_path,
+        characters_lists_dir_path,
+        texts_dir_path,
+        results_dir)
 
 
 if __name__ == "__main__":

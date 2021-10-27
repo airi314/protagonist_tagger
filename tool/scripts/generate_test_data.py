@@ -11,10 +11,15 @@ from tool.file_and_directory_management import read_file_to_list
 # number_of_sentences - umber of sentences containing at least one named entity recognized as PERSON by
 #       standard NER model to be randomly extracted from each novel
 # generated_data_dir - directory where generated data should be stored
-def main(titles_path, novels_texts_dir_path, number_of_sentences, generated_data_dir):
+def main(titles_path, novels_texts_dir_path,
+         number_of_sentences, generated_data_dir):
     titles = read_file_to_list(titles_path)
 
-    generate_sample_test_data(titles, number_of_sentences, novels_texts_dir_path, generated_data_dir)
+    generate_sample_test_data(
+        titles,
+        number_of_sentences,
+        novels_texts_dir_path,
+        generated_data_dir)
 
 
 if __name__ == "__main__":
