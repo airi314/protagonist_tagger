@@ -1,14 +1,16 @@
-from tool.model.ner_model import NERModel
 import stanza
 from tqdm import tqdm
+
+from tool.model.ner_model import NERModel
+
 
 class StanzaModel(NERModel):
 
     def __init__(self):
 
-        self.model = stanza.Pipeline('en', processors = 'tokenize,ner')
+        self.model = stanza.Pipeline('en', processors='tokenize,ner')
 
-    def get_ner_ results(self, data):
+    def get_ner_results(self, data):
 
         results = []
         for sentence in tqdm(data):

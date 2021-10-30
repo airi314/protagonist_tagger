@@ -1,15 +1,12 @@
 import sys
 import re
-import spacy
 import os
 import json
-from spacy.tokens import Span
 from tool.file_and_directory_management import read_file_to_list, read_sentences_from_file
 from tool.data_generator import json_to_spacy_train_data, spacy_format_to_json
 
 
 def load_model(library, ner_model_dir_path):
-
     if library == 'spacy':
         from tool.model.spacy_model import SpacyModel
         if ner_model_dir_path is None:
@@ -59,29 +56,6 @@ def generate_generalized_data(
             title)
 
 
-def test_ner(data, model_dir=None):
-    if model_dir is not None:
-        nlp = spacy.load(model_dir)
-    else:
-        nlp = spacy.load("en_core_web_sm")
-    result = []
-    for sentence in data:
-        doc = nlp(sentence)
-        dict = {}
-        entities = []
-        for index, ent in enumerate(doc.ents):
-            if ent.label_ == "PERSON":
-                span = Span(doc, ent.start, ent.end, label="PERSON")
-                doc.ents = [span if e == ent else e for e in doc.ents]
-                entities.append([ent.start_char, ent.end_char, "PERSON"])
-
-        dict["content"] = doc.text
-        dict["entities"] = entities
-        result.append(dict)
-
-    return result
-
-
 # titles_path - path to .txt file with titles of novels from which the sampled data are to be generated (titles should
 #       not contain any special characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
 # names_gold_standard_dir_path - path to directory with .txt files containing gold standard with annotations being full
@@ -117,6 +91,7 @@ def main(titles_path, names_gold_standard_dir_path,
 
         with open(path, 'w+') as result:
             json.dump(ner_result, result)
+
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
