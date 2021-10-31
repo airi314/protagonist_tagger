@@ -1,5 +1,6 @@
 from tabulate import tabulate
 import sys
+import os
 
 from tool.names_matcher import NamesMatcher
 from tool.file_and_directory_management import read_file_to_list, read_file, read_sentences_from_file
@@ -21,21 +22,9 @@ def get_test_data_for_novel(
     return characters, text
 
 
-def test_matcher(title, testing_string, precision, model_path,
-                 characters_lists_dir_path, novels_texts_dir_path):
-    characters, _ = get_complete_data_about_novel(
-        title, characters_lists_dir_path, novels_texts_dir_path)
-
-    names_matcher = NamesMatcher(precision, model_path)
-    matches_table = names_matcher.matcher_test(
-        characters, testing_string, title, displacy_option=True)
-
-    return matches_table
-
-
 # titles_path - path to .txt file with titles of novels from which the sampled data are to be generated (titles should
 #       not contain any special characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
-# precision - precision of approximate string matching; values in between [1,100] (recomended ~75)
+# precision - precision of approximate string matching; values in between [1,100] (recommended ~75)
 # test_variant - if True then separate sentences in testing set are considered and annotated separately; if False whole
 #       text given is annotated as a whole (without splitting to sentences)
 # model_path - path to a fine-tuned nlp spacy model to be loaded and used during named entity recognition process; if
@@ -44,9 +33,9 @@ def test_matcher(title, testing_string, precision, model_path,
 #       files should be the same as titles on the list from titles_path)
 # texts_dir_path - directory of files containing texts from corresponding novels to be annotated (names of
 #       files should be the same as titles on the list from titles_path)
-def run_matcher(titles_path, model_path, characters_lists_dir_path,
+def run_matcher(titles_path, library, model_path, characters_lists_dir_path,
                 texts_dir_path, results_dir, precision=75, tests_variant=True):
-    names_matcher = NamesMatcher(precision, model_path)
+    names_matcher = NamesMatcher(precision, library, model_path)
     titles = read_file_to_list(titles_path)
     for title in titles:
         if tests_variant:
@@ -75,10 +64,11 @@ def run_matcher(titles_path, model_path, characters_lists_dir_path,
 #       files should be the same as titles on the list from titles_path)
 # results_dir - path to the directory where the results of annotation
 # process should be stored
-def main(titles_path, model_path, characters_lists_dir_path,
+def main(titles_path, library, model_path, characters_lists_dir_path,
          texts_dir_path, results_dir):
     run_matcher(
         titles_path,
+        library,
         model_path,
         characters_lists_dir_path,
         texts_dir_path,
@@ -86,4 +76,4 @@ def main(titles_path, model_path, characters_lists_dir_path,
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])

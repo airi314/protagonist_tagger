@@ -4,30 +4,7 @@ import os
 import json
 from tool.file_and_directory_management import read_file_to_list, read_sentences_from_file
 from tool.data_generator import json_to_spacy_train_data, spacy_format_to_json
-
-
-def load_model(library, ner_model_dir_path):
-    if library == 'spacy':
-        from tool.model.spacy_model import SpacyModel
-        if ner_model_dir_path is None:
-            ner_model_dir_path = 'en_core_web_sm'
-        model = SpacyModel(ner_model_dir_path)
-
-    elif library == 'nltk':
-        from tool.model.nltk_model import NLTKModel
-        model = NLTKModel()
-
-    elif library == 'stanza':
-        from tool.model.stanza_model import StanzaModel
-        model = StanzaModel()
-
-    elif library == 'flair':
-        from tool.model.flair_model import FlairModel
-        if ner_model_dir_path is None:
-            ner_model_dir_path = 'flair'
-        model = FlairModel(ner_model_dir_path)
-
-    return model
+from tool.model.utils import load_model
 
 
 def generalize_tags(data):
@@ -74,7 +51,7 @@ def main(titles_path, names_gold_standard_dir_path,
         names_gold_standard_dir_path,
         generated_data_dir)
 
-    model = load_model(library, ner_model_dir_path)
+    model = load_model(library, ner_model_dir_path, True)
 
     for title in titles:
         test_data = read_sentences_from_file(

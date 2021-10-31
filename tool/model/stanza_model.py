@@ -6,22 +6,40 @@ from tool.model.ner_model import NERModel
 
 class StanzaModel(NERModel):
 
-    def __init__(self):
+    def __init__(self, save_personal_titles):
 
+        super().__init__(save_personal_titles)
         self.model = stanza.Pipeline('en', processors='tokenize,ner')
 
     def get_ner_results(self, data):
 
         results = []
-        for sentence in tqdm(data):
+        for sentence in data:
             doc = self.model(sentence)
             entities = []
-            for ent in doc.entities:
+            for index, ent in enumerate(doc.entities):
                 if ent.type == "PERSON":
-                    entities.append([ent.start_char, ent.end_char, "PERSON"])
+                    if self.save_personal_titles:
+                        personal_title = self.recognize_personal_title(ent, doc)
+                        entities.append([ent.start_char, ent.end_char, "PERSON", personal_title])
+                    else:
+                        entities.append([ent.start_char, ent.end_char, "PERSON"])
             results.append({'content': sentence, 'entities': entities})
         return results
 
-    def train_model(self):
+    def recognize_personal_title(self, ent, doc):
+        personal_title = None
+        span_id = None
+        for s_index, s in enumerate(doc.to_dict()):
+            span_id = [x['id'] for x in s if x['start_char'] == ent.start_char]
+            if span_id:
+                span_id = span_id[0]
+                break
+        if span_id > 1:
+            word_before_name = [x['text'] for x in doc.to_dict()[s_index] if x['id'] == span_id - 1][0]
+            if word_before_name.replace(".", "") in self.personal_titles:
+                personal_title = word_before_name.replace(".", "")
+            if word_before_name.lower() == "the":
+                personal_title = "the"
 
-        pass
+        return personal_title
