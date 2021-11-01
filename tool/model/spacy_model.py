@@ -1,6 +1,7 @@
-from tool.model.ner_model import NERModel
 import spacy
-from tqdm import tqdm
+
+from tool.model.ner_model import NERModel
+
 
 class SpacyModel(NERModel):
 
@@ -36,10 +37,10 @@ class SpacyModel(NERModel):
         personal_title = None
         span = doc.ents[index]
         if span.start > 0:
-            word_before_name = doc[span.start - 1]
-            if word_before_name.text.replace(".", "") in self.personal_titles:
-                personal_title = word_before_name.text.replace(".", "")
-            if word_before_name.text.lower() == "the":
+            word_before_name = doc[span.start - 1].text
+            if word_before_name.replace(".", "") in self.personal_titles:
+                personal_title = word_before_name.replace(".", "")
+            if word_before_name.lower() == "the":
                 personal_title = "the"
 
         return personal_title

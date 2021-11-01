@@ -1,5 +1,4 @@
 import stanza
-from tqdm import tqdm
 
 from tool.model.ner_model import NERModel
 
@@ -9,7 +8,7 @@ class StanzaModel(NERModel):
     def __init__(self, save_personal_titles):
 
         super().__init__(save_personal_titles)
-        self.model = stanza.Pipeline('en', processors='tokenize,ner')
+        self.model = stanza.Pipeline('en', processors='tokenize,ner', tokenize_no_ssplit=True)
 
     def get_ner_results(self, data):
 
@@ -29,14 +28,10 @@ class StanzaModel(NERModel):
 
     def recognize_personal_title(self, ent, doc):
         personal_title = None
-        span_id = None
-        for s_index, s in enumerate(doc.to_dict()):
-            span_id = [x['id'] for x in s if x['start_char'] == ent.start_char]
-            if span_id:
-                span_id = span_id[0]
-                break
+        span_id = [x['id'] for x in doc.sentences[0].tokens if x['start_char'] == ent.start_char][0]
+        assert len(doc.sentences) == 1
         if span_id > 1:
-            word_before_name = [x['text'] for x in doc.to_dict()[s_index] if x['id'] == span_id - 1][0]
+            word_before_name = [x['text'] for x in doc.sentences[0].tokens if x['id'] == span_id - 1][0]
             if word_before_name.replace(".", "") in self.personal_titles:
                 personal_title = word_before_name.replace(".", "")
             if word_before_name.lower() == "the":

@@ -7,7 +7,7 @@ def load_model(library, ner_model_dir_path, save_personal_titles):
 
     elif library == 'nltk':
         from tool.model.nltk_model import NLTKModel
-        model = NLTKModel()
+        model = NLTKModel(save_personal_titles)
 
     elif library == 'stanza':
         from tool.model.stanza_model import StanzaModel
@@ -17,7 +17,7 @@ def load_model(library, ner_model_dir_path, save_personal_titles):
         from tool.model.flair_model import FlairModel
         if ner_model_dir_path is None:
             ner_model_dir_path = 'flair'
-        model = FlairModel(ner_model_dir_path)
+        model = FlairModel(ner_model_dir_path, save_personal_titles)
 
     else:
         raise Exception('Library "' + library + '" is not supported. You can choose one of: spacy, nltk, stanza and '
