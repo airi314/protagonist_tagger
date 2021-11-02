@@ -1,14 +1,13 @@
 import spacy
 
 from tool.model.ner_model import NERModel
-
+from tqdm import tqdm
 
 class SpacyModel(NERModel):
 
     def __init__(self, model_path, save_personal_titles):
 
         super().__init__(save_personal_titles)
-        self.model_path = model_path
         self.model = spacy.load(model_path, enable='ner')
 
     def get_ner_results(self, data):

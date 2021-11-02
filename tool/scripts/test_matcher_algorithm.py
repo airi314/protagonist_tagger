@@ -33,8 +33,8 @@ def get_test_data_for_novel(
 #       files should be the same as titles on the list from titles_path)
 # texts_dir_path - directory of files containing texts from corresponding novels to be annotated (names of
 #       files should be the same as titles on the list from titles_path)
-def run_matcher(titles_path, library, model_path, characters_lists_dir_path,
-                texts_dir_path, results_dir, precision=75, tests_variant=True):
+def run_matcher(titles_path, characters_lists_dir_path,
+                texts_dir_path, results_dir, library, model_path, precision=75, tests_variant=True):
     names_matcher = NamesMatcher(precision, library, model_path)
     titles = read_file_to_list(titles_path)
     for title in titles:
@@ -64,15 +64,16 @@ def run_matcher(titles_path, library, model_path, characters_lists_dir_path,
 #       files should be the same as titles on the list from titles_path)
 # results_dir - path to the directory where the results of annotation
 # process should be stored
-def main(titles_path, library, model_path, characters_lists_dir_path,
-         texts_dir_path, results_dir):
+def main(titles_path, characters_lists_dir_path,
+         texts_dir_path, results_dir, library, model_path):
     run_matcher(
         titles_path,
-        library,
-        model_path,
         characters_lists_dir_path,
         texts_dir_path,
-        results_dir)
+        results_dir,
+        library,
+        model_path
+        )
 
 
 if __name__ == "__main__":

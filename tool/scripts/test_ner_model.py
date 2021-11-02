@@ -50,8 +50,7 @@ def main(titles_path, names_gold_standard_dir_path,
         titles,
         names_gold_standard_dir_path,
         generated_data_dir)
-
-    model = load_model(library, ner_model_dir_path, True)
+    model = load_model(library, ner_model_dir_path, False)
 
     for title in titles:
         test_data = read_sentences_from_file(
@@ -71,4 +70,4 @@ def main(titles_path, names_gold_standard_dir_path,
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])

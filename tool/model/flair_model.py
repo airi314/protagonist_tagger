@@ -1,6 +1,7 @@
 from tool.model.ner_model import NERModel
 from flair.data import Sentence
 from flair.models import SequenceTagger
+from tqdm import tqdm
 
 
 class FlairModel(NERModel):
@@ -8,8 +9,7 @@ class FlairModel(NERModel):
     def __init__(self, model_path, save_personal_titles):
 
         super().__init__(save_personal_titles)
-        self.model_path = model_path
-        self.model = SequenceTagger.load(self.model_path)
+        self.model = SequenceTagger.load(model_path)
 
     def get_ner_results(self, data):
 

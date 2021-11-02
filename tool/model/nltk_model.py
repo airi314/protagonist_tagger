@@ -1,5 +1,5 @@
 import nltk
-
+from tqdm import tqdm
 from tool.model.ner_model import NERModel
 
 

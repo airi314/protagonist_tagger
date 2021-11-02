@@ -48,7 +48,7 @@ def calculate_metrics_ner(gold, matcher):
         np.array(gold), np.array(matcher), labels=(characters))
 
     support = result[3]
-    result = [np.round(a, 2) for a in result[0:3]]
+    result = [np.round(a, 3) for a in result[0:3]]
     result.append(support)
 
     return result
@@ -64,7 +64,7 @@ def calculate_metrics(gold, matcher):
         labels=(characters),
         average='weighted')
 
-    result = [np.round(a, 2) for a in result[0:3]]
+    result = [np.round(a, 3) for a in result[0:3]]
 
     return result
 
