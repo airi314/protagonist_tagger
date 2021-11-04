@@ -1,6 +1,6 @@
 import sys
 
-from tool.ner_metrics import characters_tags_metrics, ner_metrics
+from tool.ner_metrics_new import characters_tags_metrics, ner_metrics
 
 
 # titles_path - path to .txt file with titles of novels which should be included in the analysis (titles should
