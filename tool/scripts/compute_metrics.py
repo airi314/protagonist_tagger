@@ -1,4 +1,5 @@
 import sys
+import argparse
 
 from tool.ner_metrics_new import characters_tags_metrics, ner_metrics
 
@@ -14,20 +15,31 @@ from tool.ner_metrics_new import characters_tags_metrics, ner_metrics
 #       metrics for protagonistTagger performance); if false metrics are calculated for general tag person (computing
 #       metrics for NER model performance)
 def main(titles_path, gold_standard_dir_path,
-         testing_set_dir_path, stats_dir, protagonist_tagger=True):
+         testing_set_dir_path, stats_dir, protagonist_tagger=False, print_results=False):
     if protagonist_tagger:
         characters_tags_metrics(
             titles_path,
             gold_standard_dir_path,
             testing_set_dir_path,
-            stats_dir)
+            stats_dir,
+            print_results)
     else:
         ner_metrics(
             titles_path,
             gold_standard_dir_path,
             testing_set_dir_path,
-            stats_dir)
+            stats_dir,
+            print_results)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('titles_path', type=str)
+    parser.add_argument('gold_standard_dir_path', type=str)
+    parser.add_argument('testing_set_dir_path', type=str)
+    parser.add_argument('stats_dir', type=str)
+    parser.add_argument('--protagonist_tagger', action='store_true')
+    parser.add_argument('--print_results', action='store_true')
+    opt = parser.parse_args()
+    main(opt.titles_path, opt.gold_standard_dir_path, opt.testing_set_dir_path,
+         opt.stats_dir, opt.protagonist_tagger, opt.print_results)

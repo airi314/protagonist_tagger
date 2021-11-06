@@ -12,6 +12,6 @@ for subset in small large; do
 		python -m tool.scripts.test_matcher_algorithm data/novels_titles/${subset}_set.txt data/lists_of_characters/${subset}_set data/testing_sets/test_${subset}/ experiments/protagonist/spacy-${model}/${subset}_set/ spacy ${model}
 	done
 
-	python -m tool.scripts.test_matcher_algorithm data/novels_titles/${subset}_set.txt data/lists_of_characters/${subset}_set data/testing_sets/test_${subset}/ experiments/protagonist/nltk/${subset}_set nltk None
-	python -m tool.scripts.test_matcher_algorithm data/novels_titles/${subset}_set.txt data/lists_of_characters/${subset}_set data/testing_sets/test_${subset}/ experiments/protagonist/stanza/${subset}_set stanza None
+	python -m tool.scripts.test_matcher_algorithm data/novels_titles/${subset}_set.txt data/lists_of_characters/${subset}_set data/testing_sets/test_${subset}/ experiments/protagonist/nltk/${subset}_set nltk
+	python -m tool.scripts.test_matcher_algorithm data/novels_titles/${subset}_set.txt data/lists_of_characters/${subset}_set data/testing_sets/test_${subset}/ experiments/protagonist/stanza/${subset}_set stanza
 done

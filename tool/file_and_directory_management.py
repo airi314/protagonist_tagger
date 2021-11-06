@@ -1,7 +1,7 @@
 import errno
 import os
 import os.path
-
+import pickle
 from tabulate import tabulate
 
 
@@ -58,3 +58,15 @@ def write_text_to_file(path, text):
     file = open_path(path, "w+")
     file.write(text)
     file.close()
+
+
+def save_to_pickle(data, path):
+    pickle_out = open(path, "wb")
+    pickle.dump(data, pickle_out)
+    pickle_out.close()
+
+
+def load_from_pickle(path):
+    file = open(path, "rb")
+    data = pickle.load(file)
+    return data

@@ -1,7 +1,8 @@
 def load_model(library, ner_model_dir_path, save_personal_titles):
+    print(library, ner_model_dir_path)
     if library == 'spacy':
         from tool.model.spacy_model import SpacyModel
-        if ner_model_dir_path == 'default':
+        if ner_model_dir_path is None:
             ner_model_dir_path = 'en_core_web_sm'
         model = SpacyModel(ner_model_dir_path, save_personal_titles)
 
@@ -15,7 +16,7 @@ def load_model(library, ner_model_dir_path, save_personal_titles):
 
     elif library == 'flair':
         from tool.model.flair_model import FlairModel
-        if ner_model_dir_path == 'default':
+        if ner_model_dir_path is None:
             ner_model_dir_path = 'ner'
         model = FlairModel(ner_model_dir_path, save_personal_titles)
 

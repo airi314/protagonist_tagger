@@ -1,20 +1,15 @@
-import pickle
 import os
 import tabulate
-
-
-def load_from_pickle(filename, stats_path):
-    file = open(os.path.join(stats_path, filename), "rb")
-    data = pickle.load(file)
-    return data
+from tool.file_and_directory_management import load_from_pickle
 
 
 headers = ['Model', 'Precision', 'Recall', 'F-measure']
 
 for subset in ['small_set', 'large_set']:
+    print('Results table for ' + subset)
     metrics_table = []
     for library in sorted(os.listdir('experiments/ner')):
-        results = load_from_pickle('overall_metrics', os.path.join('experiments/ner', library, subset, 'stats'))
+        results = load_from_pickle(os.path.join('experiments/ner', library, subset, 'stats', 'overall_metrics'))
         library = library.replace('__', ' ')
-        metrics_table.append([library] + results)
+        metrics_table.append([library] + results[:3])
     print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex_booktabs'))

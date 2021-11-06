@@ -1,10 +1,10 @@
-import sys
 import re
 import os
 import json
 from tool.file_and_directory_management import read_file_to_list, read_sentences_from_file
 from tool.data_generator import json_to_spacy_train_data, spacy_format_to_json
 from tool.model.utils import load_model
+import argparse
 
 
 def generalize_tags(data):
@@ -70,4 +70,13 @@ def main(titles_path, names_gold_standard_dir_path,
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('titles_path', type=str)
+    parser.add_argument('names_gold_standard_dir_path', type=str)
+    parser.add_argument('generated_data_dir', type=str)
+    parser.add_argument('testing_data_dir_path', type=str)
+    parser.add_argument('library', type=str, default='spacy', nargs='?')
+    parser.add_argument('ner_model_dir_path', type=str, default=None, nargs='?')
+    opt = parser.parse_args()
+    main(opt.titles_path, opt.names_gold_standard_dir_path, opt.generated_data_dir,
+         opt.testing_data_dir_path, opt.library, opt.ner_model_dir_path)

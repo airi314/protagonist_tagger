@@ -12,6 +12,6 @@ for subset in small large; do
 		python -m tool.scripts.test_ner_model data/novels_titles/${subset}_set.txt data/testing_sets/test_${subset}_person_gold_standard/ data/testing_sets/test_${subset}/ experiments/ner/spacy-${model}/${subset}_set/ spacy ${model}
 	done
 
-	python -m tool.scripts.test_ner_model data/novels_titles/${subset}_set.txt data/testing_sets/test_${subset}_person_gold_standard/ data/testing_sets/test_${subset}/ experiments/ner/nltk/${subset}_set nltk None
-	python -m tool.scripts.test_ner_model data/novels_titles/${subset}_set.txt data/testing_sets/test_${subset}_person_gold_standard/ data/testing_sets/test_${subset}/ experiments/ner/stanza/${subset}_set stanza None
+	python -m tool.scripts.test_ner_model data/novels_titles/${subset}_set.txt data/testing_sets/test_${subset}_person_gold_standard/ data/testing_sets/test_${subset}/ experiments/ner/nltk/${subset}_set nltk
+	python -m tool.scripts.test_ner_model data/novels_titles/${subset}_set.txt data/testing_sets/test_${subset}_person_gold_standard/ data/testing_sets/test_${subset}/ experiments/ner/stanza/${subset}_set stanza
 done

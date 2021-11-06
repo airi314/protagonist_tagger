@@ -1,5 +1,5 @@
 from tabulate import tabulate
-import sys
+import argparse
 import os
 
 from tool.names_matcher import NamesMatcher
@@ -77,4 +77,13 @@ def main(titles_path, characters_lists_dir_path,
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('titles_path', type=str)
+    parser.add_argument('characters_lists_dir_path', type=str)
+    parser.add_argument('texts_dir_path', type=str)
+    parser.add_argument('results_dir', type=str)
+    parser.add_argument('library', type=str, default='spacy', nargs='?')
+    parser.add_argument('ner_model_dir_path', type=str, default=None, nargs='?')
+    opt = parser.parse_args()
+    main(opt.titles_path, opt.characters_lists_dir_path, opt.texts_dir_path,
+         opt.results_dir, opt.library, opt.ner_model_dir_path)
