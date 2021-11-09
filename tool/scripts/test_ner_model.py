@@ -38,11 +38,11 @@ def generate_generalized_data(titles, names_gold_standard_dir_path, generated_da
 # ner_model_dir_path - path to directory containing fine-tune NER model to be tested; if None standard spacy NER
 #       model is used
 def main(titles_path, names_gold_standard_dir_path,
-         testing_data_dir_path, generated_data_dir, library='spacy', ner_model_dir_path=None):
+         testing_data_dir_path, generated_data_dir, library='spacy', ner_model=None):
     titles = read_file_to_list(titles_path)
     generate_generalized_data(titles, names_gold_standard_dir_path, generated_data_dir)
 
-    model = load_model(library, ner_model_dir_path)
+    model = load_model(library, ner_model)
 
     for title in titles:
         test_data = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
