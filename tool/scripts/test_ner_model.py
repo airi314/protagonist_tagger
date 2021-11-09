@@ -86,5 +86,5 @@ if __name__ == "__main__":
     parser.add_argument('generated_data_dir', type=str)
     parser.add_argument('ner_model_dir_path', type=str)
     opt = parser.parse_args()
-    main(opt.titles_path, opt.names_gold_standard_dir_path, opt.generated_data_dir,
-         opt.testing_data_dir_path, opt.ner_model_dir_path)
+    main(opt.titles_path, opt.names_gold_standard_dir_path, opt.testing_data_dir_path,
+         opt.generated_data_dir, opt.ner_model_dir_path)

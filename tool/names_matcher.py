@@ -76,10 +76,10 @@ class NamesMatcher:
                 write_list_to_file(os.path.join(results_dir, "ratios", filename), matches_table)
 
             if tests_variant:
-                with open(os.path.join(results_dir, filename), 'w', encoding='utf8') as result:
+                with open(os.path.join(results_dir, filename + ".json"), 'w', encoding='utf8') as result:
                     json.dump(train_data, result, ensure_ascii=False)
             else:
-                with open(os.path.join(results_dir, filename), 'w') as result:
+                with open(os.path.join(results_dir, filename + ".json"), 'w') as result:
                     json.dump(train_data, result)
 
         if displacy_option:
