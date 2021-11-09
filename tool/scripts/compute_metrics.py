@@ -1,6 +1,7 @@
-import sys
+import argparse
 
 from tool.ner_metrics import characters_tags_metrics, ner_metrics
+from tool.file_and_directory_management import dir_path, file_path
 
 
 # titles_path - path to .txt file with titles of novels which should be included in the analysis (titles should
@@ -21,4 +22,11 @@ def main(titles_path, gold_standard_dir_path, testing_set_dir_path, stats_dir, p
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('titles_path', type=file_path)
+    parser.add_argument('gold_standard_dir_path', type=dir_path)
+    parser.add_argument('testing_set_dir_path', type=dir_path)
+    parser.add_argument('stats_dir', type=str)
+    parser.add_argument('protagonist_tagger', type=bool)
+    opt = parser.parse_args()
+    main(opt.titles_path, opt.gold_standard_dir_path, opt.testing_set_dir_path, opt.stats_dir, opt.protagonist_tagger)

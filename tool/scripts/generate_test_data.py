@@ -1,7 +1,8 @@
-import sys
+import argparse
 
 from tool.data_generator import generate_sample_test_data
 from tool.file_and_directory_management import read_file_to_list
+from tool.file_and_directory_management import dir_path, file_path
 
 
 # titles_path - path to .txt file with titles of novels from which the sampled data are to be generated (titles should
@@ -18,4 +19,10 @@ def main(titles_path, novels_texts_dir_path, number_of_sentences, generated_data
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('titles_path', type=file_path)
+    parser.add_argument('novels_texts_dir_path', type=dir_path)
+    parser.add_argument('number_of_sentences', type=int)
+    parser.add_argument('generated_data_dir', type=str)
+    opt = parser.parse_args()
+    main(opt.titles_path, opt.novels_texts_dir_path, opt.number_of_sentences, opt.generated_data_dir)

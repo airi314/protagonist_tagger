@@ -1,10 +1,12 @@
-import spacy
-from spacy.tokens import Span
-from tool.file_and_directory_management import read_file_to_list, write_text_to_file, read_file
-import sys
+import argparse
 import random
 import copy
 import json
+import spacy
+from spacy.tokens import Span
+
+from tool.file_and_directory_management import read_file_to_list, write_text_to_file, read_file
+from tool.file_and_directory_management import file_path
 
 
 # title - title of the novel that is to be used for training set creation (the title should not contain any special
@@ -108,16 +110,26 @@ def annotate_training_set(data, names_entities):
 # sentences_per_entity - the upper limit for number of sentences with each entity that should be included in the
 #       training set
 # training_set_dir - path to the directory where the generated training set should be saved
-def main(titles_path, not_recognized_named_entities_person_file_path, novels_texts_file_path, sentences_per_entity, training_set_dir):
+def main(titles_path, not_recognized_named_entities_person_file_path, novels_texts_file_path,
+         sentences_per_entity, training_set_dir):
     titles = read_file_to_list(titles_path)
     for title in titles:
-        named_entites = get_not_recognized_entities(title, not_recognized_named_entities_person_file_path)
-        ner_training_set = create_ner_training_set(title, novels_texts_file_path, named_entites, sentences_per_entity, training_set_dir)
-        training_set = annotate_training_set(ner_training_set, named_entites)
+        named_entities = get_not_recognized_entities(title, not_recognized_named_entities_person_file_path)
+        ner_training_set = create_ner_training_set(title, novels_texts_file_path, named_entities,
+                                                   sentences_per_entity, training_set_dir)
+        training_set = annotate_training_set(ner_training_set, named_entities)
         with open(training_set_dir + title, 'w') as result:
             json.dump(training_set, result)
         print("One novel done!")
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('titles_path', type=file_path)
+    parser.add_argument('not_recognized_named_entities_person_file_path', type=file_path)
+    parser.add_argument('novels_texts_file_path', type=file_path)
+    parser.add_argument('sentences_per_entity', type=int)
+    parser.add_argument('training_set_dir', type=str)
+    opt = parser.parse_args()
+    main(opt.titles_path, opt.not_recognized_named_entities_person_file_path, opt.novels_texts_file_path,
+         opt.sentences_per_entity, opt.training_set_dir)

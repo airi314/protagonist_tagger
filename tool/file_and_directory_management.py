@@ -1,7 +1,7 @@
 import errno
 import os
 import os.path
-
+import argparse
 from tabulate import tabulate
 
 
@@ -57,3 +57,18 @@ def write_text_to_file(path, text):
     file = open_path(path, "w+")
     file.write(text)
     file.close()
+
+
+def dir_path(path):
+    if os.path.isdir(path):
+        return path
+    else:
+        raise argparse.ArgumentTypeError(f"{path} is not a valid directory path")
+
+
+def file_path(path):
+    if os.path.exists(path):
+        return path
+    else:
+        raise argparse.ArgumentTypeError(f"{path} is not a valid file path")
+

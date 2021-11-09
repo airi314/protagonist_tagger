@@ -1,11 +1,12 @@
-import spacy
-from spacy.tokens import Span
-import sys
+import argparse
 import os
 import random
 import json
+import spacy
+from spacy.tokens import Span
 
 from tool.file_and_directory_management import read_file_to_list, write_text_to_file, read_sentences_from_file, read_file
+from tool.file_and_directory_management import dir_path, file_path
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 COMMON_NAMES_FILE = ROOT_DIR.replace("\\scripts", "") + "\\additional_resources\\common_names.txt"
@@ -33,7 +34,8 @@ def get_names_to_be_replaced(characters):
 # novels_texts_dir_path - directory of .txt files containing full novels texts (names of files should be the same as
 #       titles on the list from titles_path)
 # training_set_dir - path to the directory where the generated training set should be saved
-def extract_sentences_for_names_injection(titles, number_of_sentences, characters_lists_dir_path, novels_texts_dir_path, training_set_dir):
+def extract_sentences_for_names_injection(titles, number_of_sentences, characters_lists_dir_path,
+                                          novels_texts_dir_path, training_set_dir):
     sentences_per_novel = number_of_sentences/len(titles)
     nlp = spacy.load("en_core_web_sm")
 
@@ -97,7 +99,8 @@ def main(titles_path, characters_lists_dir_path, novels_texts_dir_path, sentence
     titles = read_file_to_list(titles_path)
     common_names = get_common_names()
     number_sentences_to_extracted = sentences_per_common_name * len(common_names)
-    extract_sentences_for_names_injection(titles, number_sentences_to_extracted, characters_lists_dir_path, novels_texts_dir_path, training_set_dir)
+    extract_sentences_for_names_injection(titles, number_sentences_to_extracted, characters_lists_dir_path,
+                                          novels_texts_dir_path, training_set_dir)
     sentences = []
     names_to_be_replaced = []
     for title in titles:
@@ -112,4 +115,12 @@ def main(titles_path, characters_lists_dir_path, novels_texts_dir_path, sentence
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4]), sys.argv[5])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('titles_path', type=file_path)
+    parser.add_argument('characters_lists_dir_path', type=dir_path)
+    parser.add_argument('novels_texts_dir_path', type=dir_path)
+    parser.add_argument('sentences_per_common_name', type=int)
+    parser.add_argument('training_set_dir', type=str)
+    opt = parser.parse_args()
+    main(opt.titles_path, opt.characters_lists_dir_path, opt.novels_texts_dir_path,
+         opt.sentences_per_common_name, opt.training_set_dir)
