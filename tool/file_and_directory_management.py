@@ -11,7 +11,8 @@ def mkdir(path):
     except OSError as exc:
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
-        else: raise
+        else:
+            raise
 
 
 def open_path(path, mode):
@@ -47,9 +48,9 @@ def read_sentences_from_file(path):
     return text
 
 
-def write_list_to_file(path, list):
+def write_list_to_file(path, list_to_write):
     file = open_path(path, "w+")
-    file.write(tabulate(list, tablefmt='orgtbl'))
+    file.write(tabulate(list_to_write, tablefmt='orgtbl'))
     file.close()
 
 
@@ -71,4 +72,3 @@ def file_path(path):
         return path
     else:
         raise argparse.ArgumentTypeError(f"{path} is not a valid file path")
-

@@ -11,11 +11,11 @@ from tool.file_and_directory_management import dir_path, file_path
 
 
 def generalize_tags(data):
-    return re.sub(r"([0-9]+,\s[0-9]+,\s')[a-zA-Z\s\.àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ]+", r"\1PERSON", str(data))
+    return re.sub(r"([0-9]+,\s[0-9]+,\s')[a-zA-Z\s.àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ]+", r"\1PERSON", str(data))
 
 
 # generalizing annotations - changing tags containing full names of literary characters to general tag PERSON
-# titles - list of novels titles to be inlcluded in the generated data set (titles should not contain any special
+# titles - list of novels titles to be included in the generated data set (titles should not contain any special
 #       characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
 # names_gold_standard_dir_path - path to directory with .txt files containing gold standard with annotations being full
 #       names of literary characters (names of files should be the same as corresponding novels titles on the titles
@@ -23,9 +23,9 @@ def generalize_tags(data):
 # generated_data_dir - directory where generated data should be stored
 def generate_generalized_data(titles, names_gold_standard_dir_path, generated_data_dir):
     for title in titles:
-        test_data = json_to_spacy_train_data(names_gold_standard_dir_path + title + ".json")
+        test_data = json_to_spacy_train_data(os.path.join(names_gold_standard_dir_path, title + ".json"))
         generalized_test_data = generalize_tags(test_data)
-        spacy_format_to_json(generated_data_dir + "generated_gold_standard\\", generalized_test_data, title)
+        spacy_format_to_json(os.path.join(generated_data_dir, "generated_gold_standard"), generalized_test_data, title)
 
 
 def test_ner(data, model_dir=None):
@@ -36,7 +36,7 @@ def test_ner(data, model_dir=None):
     result = []
     for sentence in data:
         doc = nlp(sentence)
-        dict = {}
+        sent_dict = {}
         entities = []
         for index, ent in enumerate(doc.ents):
             if ent.label_ == "PERSON":
@@ -44,9 +44,9 @@ def test_ner(data, model_dir=None):
                 doc.ents = [span if e == ent else e for e in doc.ents]
                 entities.append([ent.start_char, ent.end_char, "PERSON"])
 
-        dict["content"] = doc.text
-        dict["entities"] = entities
-        result.append(dict)
+        sent_dict["content"] = doc.text
+        sent_dict["entities"] = entities
+        result.append(sent_dict)
 
     return result
 
@@ -57,7 +57,7 @@ def test_ner(data, model_dir=None):
 #       names of literary characters (names of files should be the same as corresponding novels titles on the titles
 #       list)
 # generated_data_dir - directory where generated data should be stored
-# testing_data_dir_path - directory containing .txt files with sentences extrated from novels to be included in the
+# testing_data_dir_path - directory containing .txt files with sentences extracted from novels to be included in the
 #       testing process
 # ner_model_dir_path - path to directory containing fine-tune NER model to be tested; if None standard spacy NER
 #       model is used
@@ -66,10 +66,10 @@ def main(titles_path, names_gold_standard_dir_path, testing_data_dir_path, gener
     generate_generalized_data(titles, names_gold_standard_dir_path, generated_data_dir)
 
     for title in titles:
-        test_data = read_sentences_from_file(testing_data_dir_path + title)
+        test_data = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
         ner_result = test_ner(test_data, ner_model_dir_path)
 
-        path = generated_data_dir + "ner_model_annotated\\" + title
+        path = os.path.join(generated_data_dir, "ner_model_annotated", title + ".json")
 
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))

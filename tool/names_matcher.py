@@ -4,6 +4,7 @@ import spacy
 from spacy import displacy, gold
 from spacy.tokens import Span
 import itertools
+import os
 
 from tool.file_and_directory_management import write_list_to_file
 from tool.gender_checker import get_name_gender, get_personal_titles, create_titles_and_gender_dictionary
@@ -32,7 +33,7 @@ class NamesMatcher:
         train_data = []
 
         doc = self.nlp(text)
-        dict = {}
+        result_dict = {}
         entities = []
         for index, ent in enumerate(doc.ents):
             if ent.label_ == "PERSON":
@@ -47,13 +48,14 @@ class NamesMatcher:
                         doc.ents = [span if e == ent else e for e in doc.ents]
                         entities.append([ent.start_char, ent.end_char, row[1]])
 
-        dict["content"] = doc.text
-        dict["entities"] = entities
-        train_data.append(dict)
+        result_dict["content"] = doc.text
+        result_dict["entities"] = entities
+        train_data.append(result_dict)
 
         return matches_table, train_data, doc
 
-    def match_names_for_text(self, characters, text, results_dir, filename=None, tests_variant=False, displacy_option=False, save_ratios=False, save_doc=False):
+    def match_names_for_text(self, characters, text, results_dir, filename=None, tests_variant=False,
+                             displacy_option=False, save_ratios=False, save_doc=False):
         if tests_variant:
             train_data = []
             matches_table = prepare_list_for_ratios(characters)
@@ -67,17 +69,17 @@ class NamesMatcher:
         if filename is not None:
             if save_doc:
                 json_data = gold.docs_to_json(doc)
-                with open(results_dir + "\\docs\\" + filename, 'w') as result:
+                with open(os.path.join(results_dir, "docs", filename), 'w') as result:
                     json.dump(json_data, result)
 
             if save_ratios:
-                write_list_to_file(results_dir + "\\ratios\\" + filename, matches_table)
+                write_list_to_file(os.path.join(results_dir, "ratios", filename), matches_table)
 
             if tests_variant:
-                with open(results_dir + filename, 'w', encoding='utf8') as result:
+                with open(os.path.join(results_dir, filename), 'w', encoding='utf8') as result:
                     json.dump(train_data, result, ensure_ascii=False)
             else:
-                with open(results_dir + filename, 'w') as result:
+                with open(os.path.join(results_dir, filename), 'w') as result:
                     json.dump(train_data, result)
 
         if displacy_option:
@@ -87,8 +89,8 @@ class NamesMatcher:
         matches_table, train_data, doc = self.recognize_person_entities(testing_string, characters)
 
         if filename is not None:
-            write_list_to_file(results_dir + "\\ratios\\" + filename + "_test", matches_table)
-            with open(results_dir + filename + "_test_spacy.json", 'w') as result:
+            write_list_to_file(os.path.join(results_dir, "ratios", filename + "_test"), matches_table)
+            with open(os.path.join(results_dir, filename + "_test_spacy.json"), 'w') as result:
                 json.dump(train_data, result)
 
         if displacy_option:
@@ -103,14 +105,17 @@ class NamesMatcher:
             personal_title = "Miss"
 
         for index, char in enumerate(characters):
-            # partial_ratio = fuzz.partial_ratio(((personal_title + " ") if personal_title is not None else "") + person, char)
-            # ratio = fuzz.ratio(((personal_title + " ") if personal_title is not None else "") + person, char)
+            # partial_ratio = fuzz.partial_ratio(((personal_title + " ")
+            # if personal_title is not None else "") + person, char)
+            # ratio = fuzz.ratio(((personal_title + " ")
+            # if personal_title is not None else "") + person, char)
             partial_ratio = self.get_partial_ratio_for_all_permutations(person, char)
-            ratio = fuzz.ratio(((personal_title.replace(".", "") + " ") if personal_title is not None else "") + person, char)
-            ratio_no_title = fuzz.ratio(person,                                char)
+            ratio = fuzz.ratio(((personal_title.replace(".", "") + " ")
+                                if personal_title is not None else "") + person, char)
+            ratio_no_title = fuzz.ratio(person, char)
             if ratio == 100 or ratio_no_title == 100:
                 potential_matches = [[char, ratio]]
-                row_ratios = row_ratios + ["---" for i in range(0,len(characters)-index)]
+                row_ratios = row_ratios + ["---" for i in range(0, len(characters)-index)]
                 break
             if partial_ratio >= self.partial_ratio_precision:
                 row_ratios.append("---" + str(partial_ratio) + "---")
@@ -166,7 +171,7 @@ class NamesMatcher:
                         ner_match = match[0]
                         break
 
-        else: # todo handle Bennet sisters, daughters, etc.
+        else:  # todo handle Bennet sisters, daughters, etc.
             ner_match = potential_matches[0][0]
 
         return ner_match

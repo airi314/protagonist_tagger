@@ -2,6 +2,7 @@ from __future__ import unicode_literals, print_function
 import argparse
 import random
 import warnings
+import os
 import spacy
 from spacy.util import minibatch, compounding
 
@@ -22,7 +23,7 @@ def prepare_training_data(titles_path, training_set_1_dir_path, training_set_2_p
     train_data = []
 
     for title in titles:
-        data_slice = json_to_spacy_train_data(training_set_1_dir_path + title)
+        data_slice = json_to_spacy_train_data(os.path.join(training_set_1_dir_path, title))
         train_data.extend(data_slice)
 
     data_second_set = json_to_spacy_train_data(training_set_2_path)
@@ -89,7 +90,7 @@ def fine_tune_ner(model_output_dir, titles_path, training_set_1_dir_path, traini
 #       extracted form novels
 def main(model_output_dir, titles_path, training_set_1_dir_path, training_set_2_path):
     # prepare_training_data(titles_path, training_set_1_dir_path, training_set_2_path)
-    fine_tune_ner(model_output_dir)
+    fine_tune_ner(model_output_dir, titles_path, training_set_1_dir_path, training_set_2_path)
 
 
 if __name__ == "__main__":

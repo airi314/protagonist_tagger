@@ -1,5 +1,6 @@
 from tabulate import tabulate
 import argparse
+import os
 
 from tool.names_matcher import NamesMatcher
 from tool.file_and_directory_management import read_file_to_list, read_file, read_sentences_from_file
@@ -7,14 +8,14 @@ from tool.file_and_directory_management import dir_path, file_path
 
 
 def get_complete_data_about_novel(title, characters_lists_dir_path, novels_texts_dir_path):
-    characters = read_file_to_list(characters_lists_dir_path + title)
-    novel_text = read_file(novels_texts_dir_path + title)
+    characters = read_file_to_list(os.path.join(characters_lists_dir_path, title))
+    novel_text = read_file(os.path.join(novels_texts_dir_path, title))
     return characters, novel_text
 
 
 def get_test_data_for_novel(title, characters_lists_dir_path, testing_sets_dir_path):
-    characters = read_file_to_list(characters_lists_dir_path + title)
-    text = read_sentences_from_file(testing_sets_dir_path + title)
+    characters = read_file_to_list(os.path.join(characters_lists_dir_path, title))
+    text = read_sentences_from_file(os.path.join(testing_sets_dir_path, title))
     return characters, text
 
 
@@ -29,7 +30,7 @@ def test_matcher(title, testing_string, precision, model_path, characters_lists_
 
 # titles_path - path to .txt file with titles of novels from which the sampled data are to be generated (titles should
 #       not contain any special characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
-# precision - precision of approximate string matching; values in between [1,100] (recomended ~75)
+# precision - precision of approximate string matching; values in between [1,100] (recommended ~75)
 # test_variant - if True then separate sentences in testing set are considered and annotated separately; if False whole
 #       text given is annotated as a whole (without splitting to sentences)
 # model_path - path to a fine-tuned nlp spacy model to be loaded and used during named entity recognition process; if

@@ -65,10 +65,10 @@ def spacy_format_to_json(path, data, title):
     json_data = []
 
     for sentence in eval_data:
-        dict = {"content": sentence[0], "entities": sentence[1]['entities']}
-        json_data.append(dict)
+        sent_dict = {"content": sentence[0], "entities": sentence[1]['entities']}
+        json_data.append(sent_dict)
 
-    path = path + title + ".json"
+    path = os.path.join(path, title + ".json")
 
     if not os.path.exists(os.path.dirname(path)):
         try:
