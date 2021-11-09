@@ -2,12 +2,11 @@ import argparse
 import re
 import os
 import json
-import spacy
-from spacy.tokens import Span
 
 from tool.file_and_directory_management import read_file_to_list, read_sentences_from_file
 from tool.data_generator import json_to_spacy_train_data, spacy_format_to_json
 from tool.file_and_directory_management import dir_path, file_path
+from tool.model.utils import load_model
 
 
 def generalize_tags(data):
@@ -28,29 +27,6 @@ def generate_generalized_data(titles, names_gold_standard_dir_path, generated_da
         spacy_format_to_json(os.path.join(generated_data_dir, "generated_gold_standard"), generalized_test_data, title)
 
 
-def test_ner(data, model_dir=None):
-    if model_dir is not None:
-        nlp = spacy.load(model_dir)
-    else:
-        nlp = spacy.load("en_core_web_sm")
-    result = []
-    for sentence in data:
-        doc = nlp(sentence)
-        sent_dict = {}
-        entities = []
-        for index, ent in enumerate(doc.ents):
-            if ent.label_ == "PERSON":
-                span = Span(doc, ent.start, ent.end, label="PERSON")
-                doc.ents = [span if e == ent else e for e in doc.ents]
-                entities.append([ent.start_char, ent.end_char, "PERSON"])
-
-        sent_dict["content"] = doc.text
-        sent_dict["entities"] = entities
-        result.append(sent_dict)
-
-    return result
-
-
 # titles_path - path to .txt file with titles of novels from which the sampled data are to be generated (titles should
 #       not contain any special characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
 # names_gold_standard_dir_path - path to directory with .txt files containing gold standard with annotations being full
@@ -61,13 +37,16 @@ def test_ner(data, model_dir=None):
 #       testing process
 # ner_model_dir_path - path to directory containing fine-tune NER model to be tested; if None standard spacy NER
 #       model is used
-def main(titles_path, names_gold_standard_dir_path, testing_data_dir_path, generated_data_dir, ner_model_dir_path=None):
+def main(titles_path, names_gold_standard_dir_path,
+         testing_data_dir_path, generated_data_dir, library='spacy', ner_model_dir_path=None):
     titles = read_file_to_list(titles_path)
     generate_generalized_data(titles, names_gold_standard_dir_path, generated_data_dir)
 
+    model = load_model(library, ner_model_dir_path)
+
     for title in titles:
         test_data = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
-        ner_result = test_ner(test_data, ner_model_dir_path)
+        ner_result = model.get_ner_results(test_data)
 
         path = os.path.join(generated_data_dir, "ner_model_annotated", title + ".json")
 
@@ -84,7 +63,8 @@ if __name__ == "__main__":
     parser.add_argument('names_gold_standard_dir_path', type=dir_path)
     parser.add_argument('testing_data_dir_path', type=dir_path)
     parser.add_argument('generated_data_dir', type=str)
-    parser.add_argument('ner_model_dir_path', type=str)
+    parser.add_argument('library', type=str, default='spacy', nargs='?')
+    parser.add_argument('ner_model', type=str, default=None, nargs='?')
     opt = parser.parse_args()
     main(opt.titles_path, opt.names_gold_standard_dir_path, opt.testing_data_dir_path,
-         opt.generated_data_dir, opt.ner_model_dir_path)
+         opt.generated_data_dir, opt.library, opt.ner_model)
