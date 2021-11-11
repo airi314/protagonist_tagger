@@ -1,14 +1,12 @@
 import json
 from fuzzywuzzy import fuzz
-import spacy
-from spacy import displacy, gold
-from spacy.tokens import Span
 import itertools
 import os
 
 from tool.file_and_directory_management import write_list_to_file
 from tool.gender_checker import get_name_gender, get_personal_titles, create_titles_and_gender_dictionary
 from tool.diminutives_recognizer import get_names_from_diminutive
+from tool.model.utils import load_model
 
 
 def prepare_list_for_ratios(characters):
@@ -22,80 +20,66 @@ def prepare_list_for_ratios(characters):
 
 
 class NamesMatcher:
-    def __init__(self, partial_ratio_precision, model_path="en_core_web_sm"):
+    def __init__(self, partial_ratio_precision, library="spacy", model_path="en_core_web_sm"):
         self.personal_titles = get_personal_titles()
         self.titles_gender_dict = create_titles_and_gender_dictionary()
-        self.nlp = spacy.load(model_path)
+        self.model = load_model(library, model_path, True)
         self.partial_ratio_precision = partial_ratio_precision
 
     def recognize_person_entities(self, text, characters):
-        matches_table = prepare_list_for_ratios(characters)
-        train_data = []
 
-        doc = self.nlp(text)
-        result_dict = {}
-        entities = []
-        for index, ent in enumerate(doc.ents):
-            if ent.label_ == "PERSON":
-                personal_title = self.recognize_personal_title(doc, index)
-                person = ent.text
+        matches_table = prepare_list_for_ratios(characters)
+        ner_results = self.model.get_ner_results(text)
+        matcher_results = []
+
+        for sentence in ner_results:
+            entities = []
+            for (ent_start, ent_stop, ent_label, personal_title) in sentence['entities']:
+                person = sentence['content'][ent_start:ent_stop]
                 row = self.find_match_for_person(person, personal_title, characters)
+
                 if row is not None:
                     matches_table.append(row)
                     if row[1] is not None:
-                        label = "{" + row[1] + "}"
-                        span = Span(doc, ent.start, ent.end, label=label)
-                        doc.ents = [span if e == ent else e for e in doc.ents]
-                        entities.append([ent.start_char, ent.end_char, row[1]])
+                        entities.append([ent_start, ent_stop, row[1]])
 
-        result_dict["content"] = doc.text
-        result_dict["entities"] = entities
-        train_data.append(result_dict)
+            matcher_results.append({'content': sentence["content"], 'entities': entities})
 
-        return matches_table, train_data, doc
+        return matches_table, matcher_results
 
-    def match_names_for_text(self, characters, text, results_dir, filename=None, tests_variant=False,
-                             displacy_option=False, save_ratios=False, save_doc=False):
-        if tests_variant:
-            train_data = []
-            matches_table = prepare_list_for_ratios(characters)
-            for sentence in text:
-                matches_table_row, data_for_sentence, _ = self.recognize_person_entities(sentence, characters)
-                train_data.append(data_for_sentence[0])
-                matches_table.extend(matches_table_row[1:])
-        else:
-            matches_table, train_data, doc = self.recognize_person_entities(text, characters)
+    def match_names_for_text(self, characters, text, results_dir, filename=None, save_ratios=False):
+
+        matches_table, train_data = self.recognize_person_entities(text, characters)
 
         if filename is not None:
-            if save_doc:
-                json_data = gold.docs_to_json(doc)
-                with open(os.path.join(results_dir, "docs", filename), 'w') as result:
-                    json.dump(json_data, result)
 
             if save_ratios:
-                write_list_to_file(os.path.join(results_dir, "ratios", filename), matches_table)
+                write_list_to_file(
+                    os.path.join(
+                        results_dir,
+                        "ratios",
+                        filename),
+                    matches_table)
 
-            if tests_variant:
-                with open(os.path.join(results_dir, filename + ".json"), 'w', encoding='utf8') as result:
-                    json.dump(train_data, result, ensure_ascii=False)
-            else:
-                with open(os.path.join(results_dir, filename + ".json"), 'w') as result:
-                    json.dump(train_data, result)
+            with open(os.path.join(results_dir, filename + '.json'), 'w', encoding='utf8') as result:
+                json.dump(train_data, result, ensure_ascii=False)
 
-        if displacy_option:
-            displacy.serve(doc, style="ent")
+        return matches_table
 
-    def matcher_test(self, characters, testing_string, results_dir, filename=None, displacy_option=False):
-        matches_table, train_data, doc = self.recognize_person_entities(testing_string, characters)
+    def matcher_test(self, characters, testing_string,
+                     results_dir, filename=None):
+        matches_table, train_data = self.recognize_person_entities(testing_string, characters)
 
         if filename is not None:
-            write_list_to_file(os.path.join(results_dir, "ratios", filename + "_test"), matches_table)
+            write_list_to_file(
+                os.path.join(
+                    results_dir,
+                    "ratios",
+                    filename +
+                    "_test"),
+                matches_table)
             with open(os.path.join(results_dir, filename + "_test_spacy.json"), 'w') as result:
                 json.dump(train_data, result)
-
-        if displacy_option:
-            sentence_spans = list(doc.sents)
-            displacy.serve(sentence_spans, style="ent")
 
     def find_match_for_person(self, person, personal_title, characters):
         row_ratios = []
@@ -107,15 +91,20 @@ class NamesMatcher:
         for index, char in enumerate(characters):
             # partial_ratio = fuzz.partial_ratio(((personal_title + " ")
             # if personal_title is not None else "") + person, char)
-            # ratio = fuzz.ratio(((personal_title + " ")
-            # if personal_title is not None else "") + person, char)
-            partial_ratio = self.get_partial_ratio_for_all_permutations(person, char)
-            ratio = fuzz.ratio(((personal_title.replace(".", "") + " ")
-                                if personal_title is not None else "") + person, char)
+            # ratio = fuzz.ratio(((personal_title + " ") if personal_title is not None else "") + person, char)
+            partial_ratio = self.get_partial_ratio_for_all_permutations(
+                person, char)
+            ratio = fuzz.ratio(
+                ((personal_title.replace(
+                    ".",
+                    "") +
+                  " ") if personal_title is not None else "") +
+                person,
+                char)
             ratio_no_title = fuzz.ratio(person, char)
             if ratio == 100 or ratio_no_title == 100:
                 potential_matches = [[char, ratio]]
-                row_ratios = row_ratios + ["---" for i in range(0, len(characters)-index)]
+                row_ratios = row_ratios + ["---" for i in range(0, len(characters) - index)]
                 break
             if partial_ratio >= self.partial_ratio_precision:
                 row_ratios.append("---" + str(partial_ratio) + "---")
@@ -123,9 +112,14 @@ class NamesMatcher:
             else:
                 row_ratios.append(str(partial_ratio))
 
-        potential_matches = sorted(potential_matches, key=lambda x: x[1], reverse=True)
-        row = [((personal_title + " ") if personal_title is not None else "") + str(person)]
-        ner_match = self.choose_best_match(person, personal_title, potential_matches, characters)
+        potential_matches = sorted(
+            potential_matches,
+            key=lambda x: x[1],
+            reverse=True)
+        row = [
+            ((personal_title + " ") if personal_title is not None else "") + str(person)]
+        ner_match = self.choose_best_match(
+            person, personal_title, potential_matches, characters)
         if ner_match is None:
             return None
 
@@ -134,18 +128,25 @@ class NamesMatcher:
 
         return row
 
-    def get_partial_ratio_for_all_permutations(self, potential_match, character_name):
+    def get_partial_ratio_for_all_permutations(
+            self, potential_match, character_name):
         character_name_components = character_name.split()
-        character_name_permutations = list(itertools.permutations(character_name_components))
+        character_name_permutations = list(
+            itertools.permutations(character_name_components))
         partial_ratios = []
         for permutation in character_name_permutations:
-            partial_ratios.append(fuzz.partial_ratio(' '.join(permutation), potential_match))
+            partial_ratios.append(
+                fuzz.partial_ratio(
+                    ' '.join(permutation),
+                    potential_match))
 
         return max(partial_ratios)
 
-    def choose_best_match(self, person, personal_title, potential_matches, characters):
+    def choose_best_match(self, person, personal_title,
+                          potential_matches, characters):
         if len(potential_matches) > 1:
-            ner_match = self.handle_multiple_potential_matches(person, personal_title, potential_matches)
+            ner_match = self.handle_multiple_potential_matches(
+                person, personal_title, potential_matches)
         elif len(potential_matches) == 1:
             ner_match = potential_matches[0][0]
         else:
@@ -159,7 +160,8 @@ class NamesMatcher:
 
         return ner_match
 
-    def handle_multiple_potential_matches(self, person, personal_title, potential_matches):
+    def handle_multiple_potential_matches(
+            self, person, personal_title, potential_matches):
         ner_match = None
         if personal_title is not None:
             if personal_title == "the":
@@ -175,16 +177,3 @@ class NamesMatcher:
             ner_match = potential_matches[0][0]
 
         return ner_match
-
-    # gives personal title for name at index in doc; if there is no title in front of the name None is returned
-    def recognize_personal_title(self, doc, index):
-        personal_title = None
-        span = doc.ents[index]
-        if span.start > 0:
-            word_before_name = doc[span.start - 1]
-            if word_before_name.text.replace(".", "") in self.personal_titles:
-                personal_title = word_before_name.text.replace(".", "")
-            if word_before_name.text.lower() == "the":
-                personal_title = "the"
-
-        return personal_title

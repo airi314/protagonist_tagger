@@ -19,15 +19,6 @@ def get_test_data_for_novel(title, characters_lists_dir_path, testing_sets_dir_p
     return characters, text
 
 
-def test_matcher(title, testing_string, precision, model_path, characters_lists_dir_path, novels_texts_dir_path):
-    characters, _ = get_complete_data_about_novel(title, characters_lists_dir_path, novels_texts_dir_path)
-
-    names_matcher = NamesMatcher(precision, model_path)
-    matches_table = names_matcher.matcher_test(characters, testing_string, title, displacy_option=True)
-
-    return matches_table
-
-
 # titles_path - path to .txt file with titles of novels from which the sampled data are to be generated (titles should
 #       not contain any special characters and spaces should be replaced with "_", for example "Pride_andPrejudice")
 # precision - precision of approximate string matching; values in between [1,100] (recommended ~75)
@@ -39,23 +30,23 @@ def test_matcher(title, testing_string, precision, model_path, characters_lists_
 #       files should be the same as titles on the list from titles_path)
 # texts_dir_path - directory of files containing texts from corresponding novels to be annotated (names of
 #       files should be the same as titles on the list from titles_path)
-def run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir,
-                precision=75, tests_variant=True):
-    names_matcher = NamesMatcher(precision, model_path)
+def run_matcher(titles_path, characters_lists_dir_path,
+                texts_dir_path, results_dir, library, model_path, precision=75, tests_variant=True):
+    names_matcher = NamesMatcher(precision, library, model_path)
     titles = read_file_to_list(titles_path)
     for title in titles:
         if tests_variant:
-            characters, text = get_test_data_for_novel(title, characters_lists_dir_path, texts_dir_path)
+            characters, text = get_test_data_for_novel(
+                title, characters_lists_dir_path, texts_dir_path)
         else:
-            characters, text = get_complete_data_about_novel(title, characters_lists_dir_path, texts_dir_path)
+            characters, text = get_complete_data_about_novel(
+                title, characters_lists_dir_path, texts_dir_path)
         matches_table = names_matcher.match_names_for_text(characters,
                                                            text,
                                                            results_dir,
                                                            title,
-                                                           tests_variant,
                                                            save_ratios=True)
-
-    print(tabulate(matches_table, tablefmt='orgtbl'))
+        # print(tabulate(matches_table, tablefmt='orgtbl'))
 
 
 # titles_path - path to .txt file with titles of novels from which the sampled data are to be generated (titles should
@@ -67,17 +58,18 @@ def run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_pa
 # texts_dir_path - directory of files containing texts from corresponding novels to be annotated (names of
 #       files should be the same as titles on the list from titles_path)
 # results_dir - path to the directory where the results of annotation process should be stored
-def main(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir):
-    run_matcher(titles_path, model_path, characters_lists_dir_path, texts_dir_path, results_dir)
+def main(titles_path, characters_lists_dir_path, texts_dir_path, results_dir, library, ner_model):
+    run_matcher(titles_path, characters_lists_dir_path, texts_dir_path, results_dir, library, ner_model)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('titles_path', type=file_path)
-    parser.add_argument('model_path', type=str)
     parser.add_argument('characters_lists_dir_path', type=dir_path)
     parser.add_argument('texts_dir_path', type=dir_path)
     parser.add_argument('results_dir', type=str)
+    parser.add_argument('library', type=str, default='spacy', nargs='?')
+    parser.add_argument('ner_model', type=str, default=None, nargs='?')
     opt = parser.parse_args()
-    main(opt.titles_path, opt.model_path, opt.characters_lists_dir_path,
-         opt.texts_dir_path, opt.results_dir)
+    main(opt.titles_path, opt.characters_lists_dir_path, opt.texts_dir_path,
+         opt.results_dir, opt.library, opt.ner_model)

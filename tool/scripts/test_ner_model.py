@@ -42,7 +42,7 @@ def main(titles_path, names_gold_standard_dir_path,
     titles = read_file_to_list(titles_path)
     generate_generalized_data(titles, names_gold_standard_dir_path, generated_data_dir)
 
-    model = load_model(library, ner_model)
+    model = load_model(library, ner_model, False)
 
     for title in titles:
         test_data = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
