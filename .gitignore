@@ -1,3 +1,4 @@
 .idea/
 experiments*/
 .ipynb_checkpoints/
+*.ipynb
