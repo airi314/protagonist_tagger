@@ -6,7 +6,12 @@ def load_model(library, ner_model, save_personal_titles):
         model = SpacyModel(ner_model, save_personal_titles)
 
     elif library == 'nltk':
+        import nltk
         from tool.model.nltk_model import NLTKModel
+        nltk.download('punkt', quiet=True)
+        nltk.download('averaged_perceptron_tagger', quiet=True)
+        nltk.download('maxent_ne_chunker', quiet=True)
+        nltk.download('words', quiet=True)
         model = NLTKModel(save_personal_titles)
 
     elif library == 'stanza':

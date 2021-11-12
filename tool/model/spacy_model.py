@@ -7,11 +7,9 @@ from tool.model.ner_model import NERModel
 class SpacyModel(NERModel):
 
     def __init__(self, model_path, save_personal_titles):
-        print(model_path, save_personal_titles)
         super().__init__(save_personal_titles)
-        print('super')
-        print(model_path)
         self.model = spacy.load(model_path, enable='ner')
+        print('Spacy model "' + model_path + '" loaded.')
 
     def get_ner_results(self, data):
 

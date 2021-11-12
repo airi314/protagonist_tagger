@@ -11,6 +11,7 @@ class FlairModel(NERModel):
 
         super().__init__(save_personal_titles)
         self.model = SequenceTagger.load(model_path)
+        print('Flair model "' + model_path + '" loaded.')
 
     def get_ner_results(self, data):
 
@@ -33,18 +34,12 @@ class FlairModel(NERModel):
         return results
 
     def recognize_personal_title(self, ent, doc):
-        print(ent)
-        print(doc)
-        return ""
-
-    # def recognize_personal_title(self, doc, index):
-    #     personal_title = None
-    #     span = doc.ents[index]
-    #     if span.start > 0:
-    #         word_before_name = doc[span.start - 1].text
-    #         if word_before_name.replace(".", "") in self.personal_titles:
-    #             personal_title = word_before_name.replace(".", "")
-    #         if word_before_name.lower() == "the":
-    #             personal_title = "the"
-    #
-    #     return personal_title
+        personal_title = None
+        token_id = ent[0].idx - 1
+        if token_id > 0:
+            word_before_name = doc.tokens[token_id - 1].text
+            if word_before_name.replace(".", "") in self.personal_titles:
+                personal_title = word_before_name.replace(".", "")
+            if word_before_name.lower() == "the":
+                personal_title = "the"
+            return personal_title

@@ -9,10 +9,7 @@ class NLTKModel(NERModel):
     def __init__(self, save_personal_titles):
 
         super().__init__(save_personal_titles)
-        nltk.download('punkt')
-        nltk.download('averaged_perceptron_tagger')
-        nltk.download('maxent_ne_chunker')
-        nltk.download('words')
+        print('NLTK model loaded.')
 
     def get_ner_results(self, data):
 
@@ -35,6 +32,7 @@ class NLTKModel(NERModel):
                         if self.save_personal_titles:
                             personal_title = self.recognize_personal_title(sentence, chunk_id)
                             entities.append([span[0], span[1], "PERSON", personal_title])
+
                         else:
                             entities.append([span[0], span[1], "PERSON"])
                     except IndexError:

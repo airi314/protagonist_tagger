@@ -27,6 +27,6 @@ if __name__ == "__main__":
     parser.add_argument('gold_standard_dir_path', type=dir_path)
     parser.add_argument('testing_set_dir_path', type=dir_path)
     parser.add_argument('stats_dir', type=str)
-    parser.add_argument('protagonist_tagger', type=bool)
+    parser.add_argument('--protagonist_tagger', action='store_true')
     opt = parser.parse_args()
     main(opt.titles_path, opt.gold_standard_dir_path, opt.testing_set_dir_path, opt.stats_dir, opt.protagonist_tagger)
