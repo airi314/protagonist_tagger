@@ -3,6 +3,7 @@ import os
 import os.path
 import argparse
 from tabulate import tabulate
+import pickle
 
 
 def mkdir(path):
@@ -72,3 +73,15 @@ def file_path(path):
         return path
     else:
         raise argparse.ArgumentTypeError(f"{path} is not a valid file path")
+
+
+def save_to_pickle(data, path):
+    pickle_out = open(path, "wb")
+    pickle.dump(data, pickle_out)
+    pickle_out.close()
+
+
+def load_from_pickle(path):
+    file = open(path, "rb")
+    data = pickle.load(file)
+    return data

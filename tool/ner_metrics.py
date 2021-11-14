@@ -1,161 +1,122 @@
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
 import tabulate
-import pickle
 import os
 
-from tool.file_and_directory_management import read_file_to_list
+from tool.file_and_directory_management import read_file_to_list, save_to_pickle, load_from_pickle
 from tool.data_generator import data_from_json
 
 
-def save_to_pickle(filename, data, stats_path):
-    pickle_out = open(os.path.join(stats_path, filename), "wb")
-    pickle.dump(data, pickle_out)
-    pickle_out.close()
-
-
-def load_from_pickle(filename, stats_path):
-    file = open(os.path.join(stats_path, filename), "rb")
-    data = pickle.load(file)
-    return data
-
-
-def organize_entities(entities_gold, entities_matcher):
+def organize_entities(entities_gold, entities_matcher, sentences):
     gold = []
     matcher = []
 
-    for index, entities in enumerate(entities_gold):
-        gold_temp = list(entity[2] for entity in entities)
-        matcher_temp = list(entity[2] for entity in entities_matcher[index])
-        gold.extend(gold_temp)
-        matcher.extend(matcher_temp)
-        missing_ents = np.abs(len(gold_temp) - len(matcher_temp))
-        filler = [''] * missing_ents
+    false_negative = []
+    false_positive = []
 
-        if len(gold_temp) > len(matcher_temp):
-            matcher.extend(filler)
-        else:
-            gold.extend(filler)
+    for sent_gold_entities, sent_matcher_entities, sentence in zip(entities_gold, entities_matcher, sentences):
+        sent_gold = []
+        sent_matcher = []
 
-    return gold, matcher
+        # print('\n' + sentence)
+        for gold_entity in sent_gold_entities:
+            sent_gold.append(gold_entity[2])
+            if gold_entity in sent_matcher_entities:  # if there is the same entity in predictions -> TP
+                sent_matcher.append(gold_entity[2])
+            else:
+                sent_matcher.append('-')  # if there isn't the same entity in predictions -> FN
+                # print('not recognized: ', gold_entity, sentence[gold_entity[0]:gold_entity[1]])
+                false_negative.append(gold_entity)
 
+        for matcher_entity in sent_matcher_entities:
+            if matcher_entity not in sent_gold_entities:  # if there isn't the same entity in goldstandard -> FP
+                sent_gold.append('-')
+                sent_matcher.append(matcher_entity[2])
+                # print('wrongly recognized: ', matcher_entity, sentence[matcher_entity[0]:matcher_entity[1]])
+                false_positive.append(matcher_entity)
 
-def calculate_metrics_ner(gold, matcher):
-    characters = list(dict.fromkeys(gold + matcher))
-    characters.remove('')
+        gold.extend(sent_gold)
+        matcher.extend(sent_matcher)
 
-    result = precision_recall_fscore_support(np.array(gold), np.array(matcher), labels=characters)
-
-    support = result[3]
-    result = [np.round(a, 2) for a in result[0:3]]
-    result.append(support)
-
-    return result
-
-
-def calculate_metrics(gold, matcher):
-    characters = list(dict.fromkeys(gold + matcher))
-    characters.remove('')
-
-    result = precision_recall_fscore_support(np.array(gold), np.array(matcher), labels=characters, average='weighted')
-
-    result = [np.round(a, 2) for a in result[0:3]]
-
-    return result
+    return gold, matcher, {'false_positive': false_positive, 'false_negative': false_negative}
 
 
-def create_and_save_stats(title, gold_standard_path, result_path, stats_path, ner=False):
-    entities_gold, _ = data_from_json(os.path.join(gold_standard_path, title + ".json"))
-    entities_matcher, _ = data_from_json(os.path.join(result_path, title + ".json"))
+def calculate_metrics(gold, matcher, protagonist_tagger=False):
+    characters = list(set(gold + matcher))
+    if '-' in characters:
+        characters.remove('-')
 
-    gold, matcher = organize_entities(entities_gold, entities_matcher)
-
-    if ner is True:
-        metrics = calculate_metrics_ner(gold, matcher)
+    if protagonist_tagger:
+        result = precision_recall_fscore_support(
+            np.array(gold),
+            np.array(matcher),
+            labels=characters,
+            average='weighted')
     else:
-        metrics = calculate_metrics(gold, matcher)
+        result = precision_recall_fscore_support(
+            np.array(gold),
+            np.array(matcher),
+            labels=characters)
 
-    save_to_pickle(title, metrics, stats_path)
+    result = list(result)
+    result[0:3] = [np.round(a, 3) for a in result[0:3]]
+
+    return result
 
 
-def create_overall_stats(titles, gold_standard_path, result_path, stats_path, ner=False):
+def compute_overall_stats(titles, gold_standard_path,
+                          prediction_path, stats_path, protagonist_tagger=False):
     gold_overall = []
     matcher_overall = []
 
     for title in titles:
-        entities_gold, _ = data_from_json(os.path.join(gold_standard_path, title + ".json"))
-        entities_matcher, _ = data_from_json(os.path.join(result_path, title + ".json"))
+        entities_gold, sentences = data_from_json(
+            os.path.join(gold_standard_path, title + '.json'))
+        entities_matcher, _ = data_from_json(
+            os.path.join(prediction_path, title + '.json'))
 
-        gold, matcher = organize_entities(entities_gold, entities_matcher)
+        entities_gold = [[list(x) for x in set(tuple(x) for x in sent_gold_entities)] for sent_gold_entities in
+                         entities_gold]
+        gold, matcher, errors = organize_entities(entities_gold, entities_matcher, sentences)
+        metrics_title = calculate_metrics(gold, matcher, protagonist_tagger)
+        save_to_pickle(metrics_title, os.path.join(stats_path, title))
+
         gold_overall.extend(gold)
         matcher_overall.extend(matcher)
 
-    if ner is True:
-        metrics = calculate_metrics_ner(gold_overall, matcher_overall)
-    else:
-        metrics = calculate_metrics(gold_overall, matcher_overall)
-    save_to_pickle("overall_metrics", metrics, stats_path)
-    return metrics
+    metrics_overall = calculate_metrics(gold_overall, matcher_overall, protagonist_tagger)
+    save_to_pickle(metrics_overall, os.path.join(stats_path, "overall_metrics"))
+    return metrics_overall
 
 
-def metrics_per_novel(titles_path, gold_standard_path, result_path, stats_path):
-    titles = read_file_to_list(titles_path)
-    for title in titles:
-        create_and_save_stats(title, gold_standard_path, result_path, stats_path)
-
-    for title in titles:
-        metrics = load_from_pickle(title, stats_path)
-        print("*****************")
-        print(title)
-        print(tabulate.tabulate(metrics[1:], headers=metrics[0], tablefmt='orgtbl'))
-        print("*****************")
-
-
-def overall_metrics(titles_path, gold_standard_path, result_path, stats_path):
-    titles = read_file_to_list(titles_path)
-    metrics = create_overall_stats(titles, gold_standard_path, result_path, stats_path)
-    print(tabulate.tabulate(metrics[1:], headers=metrics[0], tablefmt='orgtbl'))
-
-
-def characters_tags_metrics(titles_path, gold_standard_path, result_path, stats_path):
+def metrics(titles_path, gold_standard_path, prediction_path, stats_path,
+            protagonist_tagger=False, print_results=False):
     titles = read_file_to_list(titles_path)
 
     if not os.path.exists(stats_path):
         os.makedirs(stats_path)
 
-    for title in titles:
-        create_and_save_stats(title, gold_standard_path, result_path, stats_path, ner=False)
+    compute_overall_stats(
+        titles,
+        gold_standard_path,
+        prediction_path,
+        stats_path,
+        protagonist_tagger=protagonist_tagger)
 
+    if print_results:
+        results = get_results(stats_path, titles)
+        print(results)
+
+
+def get_results(stats_path, titles):
     metrics_table = []
     headers = ["Novel title", "precision", "recall", "F-measure"]
 
     for title in titles:
-        metrics = load_from_pickle(title, stats_path)
-        metrics_title = [title].__add__([m for m in metrics])
-        metrics_table.append(metrics_title)
+        metrics_title = load_from_pickle(os.path.join(stats_path, title))
+        metrics_table.append([title].__add__([m for m in metrics_title]))
 
-    metrics = create_overall_stats(titles, gold_standard_path, result_path, stats_path, ner=False)
-    metrics_table.append(["*** overall results ***"].__add__([m for m in metrics]))
-    print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex'))
-
-
-def ner_metrics(titles_path, gold_standard_path, result_path, stats_path):
-    titles = read_file_to_list(titles_path)
-
-    if not os.path.exists(stats_path):
-        os.makedirs(stats_path)
-
-    for title in titles:
-        create_and_save_stats(title, gold_standard_path, result_path, stats_path, ner=True)
-
-    metrics_table = []
-    headers = ["Novel title", "precision", "recall", "F-measure", "support"]
-
-    for title in titles:
-        metrics = load_from_pickle(title, stats_path)
-        metrics_title = [title].__add__([m[0] for m in metrics])
-        metrics_table.append(metrics_title)
-
-    metrics = create_overall_stats(titles, gold_standard_path, result_path, stats_path, ner=True)
-    metrics_table.append(["*** overall results ***"].__add__([m[0] for m in metrics]))
-    print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex'))
+    metrics_overall = load_from_pickle(os.path.join(stats_path, 'overall_metrics'))
+    metrics_table.append(
+        ["*** overall results ***"].__add__([m for m in metrics_overall]))
+    return tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex')
