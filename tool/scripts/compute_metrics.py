@@ -5,14 +5,15 @@ from tool.file_and_directory_management import dir_path, file_path
 
 
 def main(titles_path, gold_standard_dir_path,
-         testing_set_dir_path, stats_dir, protagonist_tagger=False, print_results=False):
+         testing_set_dir_path, stats_dir, protagonist_tagger=False, print_results=False, debug_mode=False):
     metrics(
         titles_path,
         gold_standard_dir_path,
         testing_set_dir_path,
         stats_dir,
         protagonist_tagger,
-        print_results
+        print_results,
+        debug_mode
     )
 
 
@@ -30,6 +31,7 @@ if __name__ == "__main__":
                         help="if metrics for protagonist_tagger should be calculated")
     parser.add_argument('--print_results', action='store_true',
                         help="if calculated results should be printed to the console")
+    parser.add_argument('--debug_mode', action='store_true')
     opt = parser.parse_args()
     main(opt.titles_path, opt.gold_standard_dir_path, opt.testing_set_dir_path,
-         opt.stats_dir, opt.protagonist_tagger, opt.print_results)
+         opt.stats_dir, opt.protagonist_tagger, opt.print_results, opt.debug_mode)

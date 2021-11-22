@@ -30,7 +30,7 @@ if __name__ == "__main__":
                         help="path to .txt file with titles of novels for which NER model should be tested")
     parser.add_argument('testing_data_dir_path', type=dir_path,
                         help="path to the directory containing .txt files with sentences extracted from novels "
-                                    "to be included in the testing process")
+                             "to be included in the testing process")
     parser.add_argument('generated_data_dir', type=str,
                         help="directory where generated data should be stored")
     parser.add_argument('library', type=str, default='spacy', nargs='?',
