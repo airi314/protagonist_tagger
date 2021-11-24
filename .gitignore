@@ -1,4 +1,4 @@
 .idea/
-experiments*/
-.ipynb_checkpoints/
-*.ipynb
+experiments/
+stats/
+.ipynb_checkpoints

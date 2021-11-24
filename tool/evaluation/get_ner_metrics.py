@@ -7,6 +7,7 @@ from tool.file_and_directory_management import load_from_pickle, file_path
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('results_dir', type=str)
     parser.add_argument('stats_path', type=str,
                         help="path to .txt file with titles of novels for which NER model should be tested")
     parser.add_argument('--protagonist_tagger', action='store_true',
@@ -19,12 +20,13 @@ if __name__ == "__main__":
     metrics_table = []
 
     if opt.protagonist_tagger:
-        dir = 'protagonist'
+        task = 'protagonist'
     else:
-        dir = 'ner'
+        task = 'ner'
 
-    for library in sorted(os.listdir(os.path.join('experiments', dir))):
-        results = load_from_pickle(os.path.join('experiments', dir, library, opt.stats_path, 'overall_metrics'))
+    for library in sorted(os.listdir(os.path.join('experiments', opt.results_dir, task))):
+        results = load_from_pickle(os.path.join('experiments', opt.results_dir,
+                                                task, library, opt.stats_path, 'overall_metrics'))
         library = library.replace('__', ' ')
         metrics_table.append([library] + results[:3])
     print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex_booktabs'))

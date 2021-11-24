@@ -1,14 +1,14 @@
-import gender_guesser.detector as gender_guesser
-# https://pypi.org/project/gender-guesser/#description
 import collections
 import csv
 import os
+import numpy as np
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 GENDER_FILE = os.path.join(ROOT_DIR, "additional_resources/gender_markers.csv")
 
 
 def create_titles_and_gender_dictionary():
+    import gender_guesser.detector as gender_guesser
     gender_dictionary = collections.defaultdict(list)
     with open(GENDER_FILE) as file:
         csv_reader = csv.reader(file)
@@ -23,9 +23,9 @@ def get_personal_titles():
     with open(GENDER_FILE) as file:
         csv_reader = csv.reader(file)
         for line in csv_reader:
-            titles.append(line[0])
+            titles.append(line[0].split(' ')[0])
 
-    return titles
+    return np.array(titles)
 
 
 def get_name_gender(name):
