@@ -9,7 +9,8 @@ class StanzaModel(NERModel):
     def __init__(self, save_personal_titles, fix_personal_titles):
 
         super().__init__(save_personal_titles, fix_personal_titles)
-        self.model = stanza.Pipeline('en', processors='tokenize,ner', tokenize_no_ssplit=True, logging_level='ERROR')
+        self.model = stanza.Pipeline('en', processors='tokenize,ner', tokenize_no_ssplit=True,
+                                     logging_level='ERROR', use_gpu=False)
         print('Stanza model loaded.')
 
     def get_ner_results(self, data):

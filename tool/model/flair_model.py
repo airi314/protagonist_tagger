@@ -1,6 +1,8 @@
 from tqdm import tqdm
+import flair
 from flair.models import SequenceTagger
 from flair.data import Sentence
+import torch
 
 from tool.model.ner_model import NERModel
 
@@ -10,6 +12,7 @@ class FlairModel(NERModel):
     def __init__(self, model_path, save_personal_titles, fix_personal_titles):
 
         super().__init__(save_personal_titles, fix_personal_titles)
+        flair.device = torch.device('cpu')
         self.model = SequenceTagger.load(model_path)
         print('Flair model "' + model_path + '" loaded.')
 
