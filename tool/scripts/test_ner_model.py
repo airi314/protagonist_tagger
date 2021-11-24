@@ -1,17 +1,19 @@
 import argparse
 import os
 import json
+from tqdm import tqdm
 
 from tool.file_and_directory_management import read_file_to_list, read_sentences_from_file, dir_path, file_path
 from tool.model.utils import load_model
 
 
-def main(titles_path, testing_data_dir_path, generated_data_dir, library='spacy', ner_model=None):
+def main(titles_path, testing_data_dir_path, generated_data_dir, library='spacy',
+         ner_model=None, fix_personal_titles=False):
     titles = read_file_to_list(titles_path)
 
-    model = load_model(library, ner_model, False)
+    model = load_model(library, ner_model, False, fix_personal_titles)
 
-    for title in titles:
+    for title in tqdm(titles):
         test_data = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
         ner_result = model.get_ner_results(test_data)
 
@@ -37,6 +39,7 @@ if __name__ == "__main__":
                         help="library which should be used to test NER")
     parser.add_argument('ner_model', type=str, default=None, nargs='?',
                         help="model from chosen library which should be used to test NER")
+    parser.add_argument('--fix_personal_titles', action='store_true')
     opt = parser.parse_args()
     main(opt.titles_path, opt.testing_data_dir_path,
-         opt.generated_data_dir, opt.library, opt.ner_model)
+         opt.generated_data_dir, opt.library, opt.ner_model, opt.fix_personal_titles)

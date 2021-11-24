@@ -6,15 +6,15 @@ from tool.model.ner_model import NERModel
 
 class NLTKModel(NERModel):
 
-    def __init__(self, save_personal_titles):
+    def __init__(self, save_personal_titles, fix_personal_titles):
 
-        super().__init__(save_personal_titles)
+        super().__init__(save_personal_titles, fix_personal_titles)
         print('NLTK model loaded.')
 
     def get_ner_results(self, data):
 
         results = []
-        for sentence in tqdm(data):
+        for sentence in tqdm(data, leave=False):
 
             entities = []
             offset = 0
@@ -28,13 +28,15 @@ class NLTKModel(NERModel):
 
                 if hasattr(chunk, 'label') and chunk.label() == 'PERSON':
                     try:
-                        span = spans[chunk_id]
+                        start, end = spans[chunk_id]
+                        text = sentence[start:end]
+                        if self.fix_personal_titles and text.startswith(self.personal_titles):
+                            start += (1 + len(text.split(' ')[0]))
                         if self.save_personal_titles:
                             personal_title = self.recognize_personal_title(sentence, chunk_id)
-                            entities.append([span[0], span[1], "PERSON", personal_title])
-
+                            entities.append([start, end, "PERSON", personal_title])
                         else:
-                            entities.append([span[0], span[1], "PERSON"])
+                            entities.append([start, end, "PERSON"])
                     except IndexError:
                         pass
 

@@ -6,24 +6,28 @@ from tool.model.ner_model import NERModel
 
 class SpacyModel(NERModel):
 
-    def __init__(self, model_path, save_personal_titles):
-        super().__init__(save_personal_titles)
+    def __init__(self, model_path, save_personal_titles, fix_personal_titles):
+        super().__init__(save_personal_titles, fix_personal_titles)
         self.model = spacy.load(model_path, enable='ner')
         print('Spacy model "' + model_path + '" loaded.')
 
     def get_ner_results(self, data):
 
         results = []
-        for sentence in tqdm(data):
+        for sentence in tqdm(data, leave=False):
             doc = self.model(sentence)
             entities = []
             for index, ent in enumerate(doc.ents):
                 if ent.label_ == "PERSON":
+                    start, end = ent.start_char, ent.end_char
+                    text = sentence[start:end]
+                    if self.fix_personal_titles and text.startswith(self.personal_titles):
+                        start += (1 + len(text.split(' ')[0]))
                     if self.save_personal_titles:
                         personal_title = self.recognize_personal_title(doc, index)
-                        entities.append([ent.start_char, ent.end_char, "PERSON", personal_title])
+                        entities.append([start, end, "PERSON", personal_title])
                     else:
-                        entities.append([ent.start_char, ent.end_char, "PERSON"])
+                        entities.append([start, end, "PERSON"])
 
             results.append({'content': doc.text, 'entities': entities})
 
