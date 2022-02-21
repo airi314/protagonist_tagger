@@ -1,4 +1,5 @@
 .idea/
 experiments/
 stats/
-.ipynb_checkpoints
+.ipynb_checkpoints/
+resources/
