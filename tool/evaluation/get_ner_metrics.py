@@ -2,7 +2,7 @@ import os
 import tabulate
 import argparse
 
-from tool.file_and_directory_management import load_from_pickle, file_path
+from tool.file_and_directory_management import load_from_pickle
 
 
 if __name__ == "__main__":
