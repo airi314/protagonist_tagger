@@ -8,6 +8,21 @@ The performance of **protagonistTagger** in thirteen full-text novels shows that
 Exemplary annotations (written in between --*assigned_tag*--) performed by **protagonistTagger**:
 >"Her disappointment in **Charlotte --Charlotte Lucas--** made her turn with fonder regard to her sister, of whose rectitude and delicacy she was sure her opinion could never be shaken, and for whose happiness she grew daily more anxious, as **Bingley --Charles Bingley--** had now been gone a week and nothing more was heard of his return. **Jane --Jane Bennet--** had sent **Caroline --Caroline Bingley--** an early answer to her letter and was counting the days till she might reasonably hope to hear again. The promised letter of thanks from **Mr. Collins --Mr William Collins--** arrived on Tuesday, addressed to their father, and written with all the solemnity of gratitude which a twelvemonth’s abode in the family might have prompted."  
 
+## Installation
+
+To clone this repository you should run following command:
+
+```bash
+git clone https://github.com/airi314/protagonist_tagger
+```
+
+Then Python environment should be installed. One way to do it is:
+```bash
+conda create --name protagonist python=-3.6.13
+conda activate protagonist
+pip install -r requirements.txt
+```
+
 ## General Project Workflow
 The process of creating the corpus of annotated novels and the **protagonistTagger** tool comprises several stages:
 - Gathering an initial corpus with plain novels' texts without annotations. 
@@ -52,21 +67,3 @@ Arguments should be separated with single space and given without any quotation 
 
 `$ python -m tool.scripts.generate_test_data C:\users\john_smith\desktop\titles.txt C:\users\john_smith\desktop\novels_texts\ 20 C:\users\john_smith\desktop\my_results\`
 
-## Prerequisites
-In order to successfully use the provided scripts the following requirements need to be fullfilled:
-- Python 3.6
-- PyYAML 5.3
-- gensim 3.8
-- numpy 1.18.2
-- pytorch.transformers 1.2
-- scikit-learn 0.22
-- scipy 1.4.1
-- spacy 2.2.4
-
-Additionally the following packages are used:
-- fuzzywuzzy 0.18 - https://pypi.org/project/fuzzywuzzy/
-- gender-guesser 0.4 - https://pypi.org/project/gender-guesser/
-- nickname-and-diminutive-names-lookup - https://github.com/carltonnorthern/nickname-and-diminutive-names-lookup
-
-## More information
-More information about the prepared corpus, data sets and the tool itself can be found in the presentation and the paper located in this repository.
