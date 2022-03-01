@@ -1,4 +1,3 @@
-from tqdm import tqdm
 import flair
 from flair.models import SequenceTagger
 from flair.data import Sentence
@@ -16,28 +15,24 @@ class FlairModel(NERModel):
         self.model = SequenceTagger.load(model_path)
         print('Flair model "' + model_path + '" loaded.')
 
-    def get_ner_results(self, data):
+    def get_doc_entities(self, text):
 
-        results = []
-        for sentence in tqdm(data, leave=False):
-            doc = Sentence(sentence)
-            self.model.predict(doc)
+        doc = Sentence(text)
+        self.model.predict(doc)
 
-            entities = []
-            for ent in doc.get_spans('ner'):
-                if ent.labels[0].to_dict()['value'] == 'PER':
-                    text = sentence[ent.start_pos:ent.end_pos]
-                    if self.fix_personal_titles and text.startswith(self.personal_titles):
-                        ent.start_pos += (1 + len(text.split(' ')[0]))
-                    if self.save_personal_titles:
-                        personal_title = self.recognize_personal_title(ent, doc)
-                        entities.append([ent.start_pos, ent.end_pos, "PERSON", personal_title])
-                    else:
-                        entities.append([ent.start_pos, ent.end_pos, "PERSON"])
+        entities = []
+        for ent in doc.get_spans('ner'):
+            if ent.labels[0].to_dict()['value'] == 'PER':
+                ent_text = text[ent.start_pos:ent.end_pos]
+                if self.fix_personal_titles and ent_text.startswith(self.personal_titles):
+                    ent.start_pos += (1 + len(ent_text.split(' ')[0]))
+                if self.save_personal_titles:
+                    personal_title = self.recognize_personal_title(ent, doc)
+                    entities.append([ent.start_pos, ent.end_pos, "PERSON", personal_title])
+                else:
+                    entities.append([ent.start_pos, ent.end_pos, "PERSON"])
 
-            results.append({'content': sentence, 'entities': entities})
-
-        return results
+        return {'content': text, 'entities': entities}
 
     def recognize_personal_title(self, ent, doc):
         personal_title = None

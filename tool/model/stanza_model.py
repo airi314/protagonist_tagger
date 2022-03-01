@@ -1,4 +1,3 @@
-from tqdm import tqdm
 import stanza
 
 from tool.model.ner_model import NERModel
@@ -13,24 +12,20 @@ class StanzaModel(NERModel):
                                      logging_level='ERROR', use_gpu=False)
         print('Stanza model loaded.')
 
-    def get_ner_results(self, data):
-
-        results = []
-        for sentence in tqdm(data, leave=False):
-            doc = self.model(sentence)
-            entities = []
-            for index, ent in enumerate(doc.entities):
-                if ent.type == "PERSON":
-                    text = sentence[ent.start_char:ent.end_char]
-                    if self.fix_personal_titles and text.startswith(self.personal_titles):
-                        ent.start_char += (1 + len(text.split(' ')[0]))
-                    if self.save_personal_titles:
-                        personal_title = self.recognize_personal_title(ent, doc)
-                        entities.append([ent.start_char, ent.end_char, "PERSON", personal_title])
-                    else:
-                        entities.append([ent.start_char, ent.end_char, "PERSON"])
-            results.append({'content': sentence, 'entities': entities})
-        return results
+    def get_doc_entities(self, text):
+        doc = self.model(text)
+        entities = []
+        for index, ent in enumerate(doc.entities):
+            if ent.type == "PERSON":
+                ent_text = text[ent.start_char:ent.end_char]
+                if self.fix_personal_titles and ent_text.startswith(self.personal_titles):
+                    ent.start_char += (1 + len(ent_text.split(' ')[0]))
+                if self.save_personal_titles:
+                    personal_title = self.recognize_personal_title(ent, doc)
+                    entities.append([ent.start_char, ent.end_char, "PERSON", personal_title])
+                else:
+                    entities.append([ent.start_char, ent.end_char, "PERSON"])
+        return {'content': text, 'entities': entities}
 
     def recognize_personal_title(self, ent, doc):
         personal_title = None
