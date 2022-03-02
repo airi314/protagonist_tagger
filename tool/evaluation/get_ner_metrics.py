@@ -2,7 +2,7 @@ import os
 import tabulate
 import argparse
 
-from tool.file_and_directory_management import load_from_pickle
+from tool.file_and_directory_management import open_path, load_from_pickle
 
 
 if __name__ == "__main__":
@@ -22,8 +22,9 @@ if __name__ == "__main__":
                                                 library, opt.stats_path, 'overall_metrics'))
         library = library.replace('__', ' ')
         metrics_table.append([library] + results[:3])
-    print(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex_booktabs'))
+    results = tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex_booktabs')
+    print(results)
 
     if opt.save_path:
-        with open(opt.save_path, 'w') as f:
-            f.write(tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex_booktabs'))
+        open_path(opt.save_path, 'w').write(results)
+

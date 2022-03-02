@@ -35,9 +35,9 @@ def read_file_to_list(path):
 
 def read_file(path):
     file = open_path(path, "r")
-    text = file.readlines()
+    text = file.read()
 
-    return text[0].encode('ascii', 'ignore').decode("utf-8")
+    return text.encode('ascii', 'ignore').decode("utf-8")
 
 
 def read_sentences_from_file(path):

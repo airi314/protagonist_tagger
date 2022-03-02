@@ -10,9 +10,12 @@ class NERModel:
 
     def get_ner_results(self, data, full_text = False):
         if full_text:
-            results = self.get_doc_entities(data)
+            results = [self.get_doc_entities(data)]
         else:
             results = []
             for sentence in tqdm(data, leave=False):
                 results.append(self.get_doc_entities(sentence))
         return results
+
+    def get_doc_entities(self, text):
+        pass

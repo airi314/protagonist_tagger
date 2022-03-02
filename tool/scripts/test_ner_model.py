@@ -3,32 +3,21 @@ import os
 import json
 from tqdm import tqdm
 
-from tool.file_and_directory_management import read_file_to_list, read_sentences_from_file, dir_path, file_path
+from tool.file_and_directory_management import open_path, read_file_to_list, dir_path, file_path
 from tool.model.utils import load_model
-from tool.preprocessing import get_litbank_text
+from tool.preprocessing import get_test_data_for_novel
 
 
 def main(titles_path, testing_data_dir_path, generated_data_dir, library='spacy',
          ner_model=None, fix_personal_titles=False, full_text=False):
     titles = read_file_to_list(titles_path)
-
     model = load_model(library, ner_model, False, fix_personal_titles)
 
     for title in tqdm(titles):
-        if full_text:
-            test_data = get_litbank_text(os.path.join(testing_data_dir_path, title))
-            ner_result = model.get_ner_results(test_data, full_text = True)
-        else:
-            test_data = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
-            ner_result = model.get_ner_results(test_data)
-
+        test_data = get_test_data_for_novel(title, testing_data_dir_path, full_text)
+        ner_result = model.get_ner_results(test_data, full_text)
         path = os.path.join(generated_data_dir, title + ".json")
-
-        if not os.path.exists(os.path.dirname(path)):
-            os.makedirs(os.path.dirname(path))
-
-        with open(path, 'w+') as result:
-            json.dump(ner_result, result)
+        open_path(path, 'w').write(json.dumps(ner_result))
 
 
 if __name__ == "__main__":

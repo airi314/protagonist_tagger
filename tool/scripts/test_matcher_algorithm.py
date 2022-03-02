@@ -1,33 +1,24 @@
 import argparse
 import os
 import json
+from tqdm import tqdm
 
 from tool.names_matcher import NamesMatcher
-from tool.file_and_directory_management import read_file_to_list, read_sentences_from_file
-from tool.file_and_directory_management import dir_path, file_path
-
-
-def get_test_data_for_novel(title, characters_lists_dir_path, testing_data_dir_path):
-    characters = read_file_to_list(os.path.join(characters_lists_dir_path, title))
-    text = read_sentences_from_file(os.path.join(testing_data_dir_path, title))
-    return characters, text
+from tool.preprocessing import get_test_data_for_novel, get_characters_for_novel
+from tool.file_and_directory_management import open_path, read_file_to_list, dir_path, file_path
 
 
 def main(titles_path, characters_lists_dir_path, testing_data_dir_path, generated_data_dir,
-         library, ner_model, fix_personal_titles, precision=75):
+         library, ner_model, fix_personal_titles, full_text, precision=75):
     titles = read_file_to_list(titles_path)
     names_matcher = NamesMatcher(precision, library, ner_model, fix_personal_titles)
 
-    if not os.path.exists(os.path.dirname(generated_data_dir)):
-        os.makedirs(os.path.dirname(generated_data_dir))
-
-    for title in titles:
-        characters, test_data = get_test_data_for_novel(
-            title, characters_lists_dir_path, testing_data_dir_path)
-        matcher_results = names_matcher.recognize_person_entities(test_data, characters)
-
-        with open(os.path.join(generated_data_dir, title + '.json'), 'w', encoding='utf8') as result:
-            json.dump(matcher_results, result, ensure_ascii=False)
+    for title in tqdm(titles):
+        test_data = get_test_data_for_novel(title, testing_data_dir_path, full_text)
+        characters = get_characters_for_novel(title, characters_lists_dir_path)
+        matcher_results = names_matcher.recognize_person_entities(test_data, characters, full_text)
+        path = os.path.join(generated_data_dir, title + '.json')
+        open_path(path, 'w').write(json.dumps(matcher_results))
 
 
 if __name__ == "__main__":
@@ -46,7 +37,8 @@ if __name__ == "__main__":
     parser.add_argument('ner_model', type=str, default=None, nargs='?',
                         help="model from chosen library which should be used to test NER")
     parser.add_argument('--fix_personal_titles', action='store_true')
+    parser.add_argument('--full_text', action='store_true')
     opt = parser.parse_args()
 
     main(opt.titles_path, opt.characters_lists_dir_path, opt.testing_data_dir_path,
-         opt.generated_data_dir, opt.library, opt.ner_model, opt.fix_personal_titles)
+         opt.generated_data_dir, opt.library, opt.ner_model, opt.fix_personal_titles, opt.full_text)

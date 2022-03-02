@@ -96,9 +96,6 @@ def metrics(titles_path, gold_standard_path, prediction_path, stats_path,
             protagonist_tagger=False, print_results=False, debug_mode=False):
     titles = read_file_to_list(titles_path)
 
-    if not os.path.exists(stats_path):
-        os.makedirs(stats_path)
-
     compute_overall_stats(
         titles,
         gold_standard_path,
@@ -114,7 +111,7 @@ def metrics(titles_path, gold_standard_path, prediction_path, stats_path,
 
 def get_results(stats_path, titles):
     metrics_table = []
-    headers = ["Novel title", "precision", "recall", "F-measure"]
+    headers = ["Novel title", "Precision", "Recall", "F-measure"]
 
     for title in titles:
         metrics_title = load_from_pickle(os.path.join(stats_path, title))

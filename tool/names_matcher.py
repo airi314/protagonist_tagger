@@ -13,21 +13,20 @@ class NamesMatcher:
         self.model = load_model(library, model_path, True, fix_personal_titles)
         self.partial_ratio_precision = partial_ratio_precision
 
-    def recognize_person_entities(self, test_data, characters):
+    def recognize_person_entities(self, test_data, characters, full_text):
 
-        ner_results = self.model.get_ner_results(test_data)
+        ner_results = self.model.get_ner_results(test_data, full_text)
         matcher_results = []
-
-        for sentence in ner_results:
+        for result in ner_results:
             entities = []
-            for (ent_start, ent_stop, ent_label, personal_title) in sentence['entities']:
-                person = sentence['content'][ent_start:ent_stop]
+            for (ent_start, ent_stop, ent_label, personal_title) in result['entities']:
+                person = result['content'][ent_start:ent_stop]
                 final_match = self.find_match_for_person(person, personal_title, characters)
 
                 if final_match is not None:
                     entities.append([ent_start, ent_stop, final_match])
 
-            matcher_results.append({'content': sentence["content"], 'entities': entities})
+            matcher_results.append({'content': result["content"], 'entities': entities})
 
         return matcher_results
 
