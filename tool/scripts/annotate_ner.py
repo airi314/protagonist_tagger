@@ -3,7 +3,8 @@ import os
 import json
 from tqdm import tqdm
 
-from tool.file_and_directory_management import open_path, read_file_to_list, dir_path, file_path
+from tool.file_and_directory_management import open_path, read_file_to_list, \
+    dir_path, file_path
 from tool.model.utils import load_model
 from tool.preprocessing import get_test_data_for_novel
 
@@ -14,7 +15,8 @@ def main(titles_path, testing_data_dir_path, generated_data_dir, library='spacy'
     model = load_model(library, ner_model, False, fix_personal_titles)
 
     for title in tqdm(titles):
-        test_data = get_test_data_for_novel(title, testing_data_dir_path, full_text)
+        test_data = get_test_data_for_novel(
+            title, testing_data_dir_path, full_text)
         ner_result = model.get_ner_results(test_data, full_text)
         path = os.path.join(generated_data_dir, title + ".json")
         open_path(path, 'w').write(json.dumps(ner_result))

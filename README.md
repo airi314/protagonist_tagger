@@ -50,14 +50,18 @@ This repository comprises three main parts:
 
 ## How to use the protagonistTagger
 In order to make the tool easy to use, there are several scripts offering most important functionalities. The scripts are located in *protagonist_tagger/tool/scripts* and they can be simply lauched from terminal with a set of necessary arguments. The following scripts are available:
-+ *compute_metrics.py*  - given testing set annotated only by fine-tuned NER model or by protagonistTagger and a gold standard, it computes metrics such as precision, recall, F-measure
-+ *fine_tune_ner_model.py* - given training set(s), it fine-tunes a predefined spacy NER model and saves it to a given directory to be reused
-+ *generate_test_data.py* - given full plain texts of novels, it extracts sentences contiaing named entites of category *person*  in order to create testing sets
-+ *prepare_training_set_with_common_names_for_ner_fine_tuning.py* - given a set of common English names, lists of literary characters and full plain texts of novels, it creates training set for fine-tuning NER model by injecting to sentences extracted from novels (and containing at least one named entity of category *person*) common English names
-+ *prepare_training_set_with_not_recognized_named_entities_for_ner_fine_tuning.py* - given sets of named entities of category *person* not recognized by standard NER model and full plain tests of novels, it creates training set for NER model fine-tuning by extracting from novels and semi-automatically annotating with general tag PERSON sentences with not recognized named entites
-+ *test_matcher_algorithm.py* - given list of literary characters, novels texts (either full or only some extracted sentences), fine-tuned NER model and precision (for approximate string matching), it annotates the given text with names of literary characters from the list
-+ *test_ner_model.py* - given NER model, testing sets and gold standards annotated with full names of literary characters, it generalizes the gold standard (by replacing character-specific annotation with general tag PERSON) and annotates the testing set with general tag PERSON using given NER model; created annotated sets are prepared to be compared and analysed by computing metrics
++ *annotate_ner.py* - given NER model, novels texts (either full or only some extracted sentences), it annotates the given text set with general tag PERSON using given NER model;
++ *annotate_protagonist.py* - given list of literary characters, NER model, novels texts (either full or only some extracted sentences) and precision (for approximate string matching), it annotates the given text with names of literary characters from the list
++ *compute_metrics.py* - given testing set annotated by NER model or by protagonistTagger and a gold standard, it computes metrics such as precision, recall, F-measure
 
+
+[comment]: <> (+ *fine_tune_ner_model.py* - given training set&#40;s&#41;, it fine-tunes a predefined spacy NER model and saves it to a given directory to be reused)
+
+[comment]: <> (+ *generate_test_data.py* - given full plain texts of novels, it extracts sentences contiaing named entites of category *person*  in order to create testing sets)
+
+[comment]: <> (+ *prepare_training_set_with_common_names_for_ner_fine_tuning.py* - given a set of common English names, lists of literary characters and full plain texts of novels, it creates training set for fine-tuning NER model by injecting to sentences extracted from novels &#40;and containing at least one named entity of category *person*&#41; common English names)
+
+[comment]: <> (+ *prepare_training_set_with_not_recognized_named_entities_for_ner_fine_tuning.py* - given sets of named entities of category *person* not recognized by standard NER model and full plain tests of novels, it creates training set for NER model fine-tuning by extracting from novels and semi-automatically annotating with general tag PERSON sentences with not recognized named entites)
 
 Detailed information about input arguments and functionalities implemented in each script can be found in comments in corresponding python files. Each script can be run from terminal (from \protagonist_tagger directory) according to the same schema:
 
@@ -65,5 +69,4 @@ Detailed information about input arguments and functionalities implemented in ea
 
 Arguments should be separated with single space and given without any quotation marks. For example:
 
-`$ python -m tool.scripts.generate_test_data C:\users\john_smith\desktop\titles.txt C:\users\john_smith\desktop\novels_texts\ 20 C:\users\john_smith\desktop\my_results\`
-
+`$ python -m tool.scripts.annotate_ner data/novels_titles/large_set.txt data/testing_sets/test/ experiments/test_experiment flair ner-fast`
