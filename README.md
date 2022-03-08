@@ -18,9 +18,8 @@ git clone https://github.com/airi314/protagonist_tagger
 
 Then Python environment should be installed. One way to do it is:
 ```bash
-conda create --name protagonist python=-3.6.13
+conda env create -f env.yml
 conda activate protagonist
-pip install -r requirements.txt
 ```
 
 ## General Project Workflow
