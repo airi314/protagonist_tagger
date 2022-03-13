@@ -24,6 +24,12 @@ def load_model(library, ner_model, save_personal_titles, fix_personal_titles=Tru
             ner_model = 'ner'
         model = FlairModel(ner_model, save_personal_titles, fix_personal_titles)
 
+    elif library == 'transformers':
+        from tool.model.transformers_model import TransformerModel
+        if ner_model is None:
+            ner_model = "xlm-roberta-large-finetuned-conll03-english"
+        model = TransformerModel(ner_model, save_personal_titles, fix_personal_titles)
+
     else:
         raise Exception('Library "' + library + '" is not supported. You can choose one of: spacy, nltk, stanza and '
                                                 'flair.')

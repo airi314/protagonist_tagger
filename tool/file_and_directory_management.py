@@ -76,6 +76,7 @@ def file_path(path):
 
 
 def save_to_pickle(data, path):
+    mkdir(os.path.dirname(path))
     pickle_out = open(path, "wb")
     pickle.dump(data, pickle_out)
     pickle_out.close()
