@@ -1,15 +1,6 @@
-import os
 import json
 import pandas as pd
 import ast
-from pylighter import Annotation
-
-
-def read_annotations(annotation_path):
-    with open(annotation_path) as f:
-        annotations = f.read()
-    annotations = json.loads(annotations)
-    return annotations
 
 
 def annotations_to_pylighter(annotations):

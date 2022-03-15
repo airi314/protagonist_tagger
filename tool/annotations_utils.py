@@ -1,3 +1,5 @@
+import json
+
 from tool.gender_checker import get_personal_titles
 
 
@@ -40,3 +42,9 @@ def personal_titles_stats(annotations):
                     print(title)
 
     return personal_title_annotated, personal_title_not_annotated
+
+def read_annotations(annotation_path):
+    with open(annotation_path) as f:
+        annotations = f.read()
+    annotations = json.loads(annotations)
+    return annotations

@@ -22,11 +22,11 @@ class NamesMatcher:
             for (ent_start, ent_stop, ent_label, personal_title) in result['entities']:
                 person = result['content'][ent_start:ent_stop]
                 final_match = self.find_match_for_person(person, personal_title, characters)
-
                 if final_match is not None:
                     entities.append([ent_start, ent_stop, final_match])
 
             matcher_results.append({'content': result["content"], 'entities': entities})
+
 
         return matcher_results
 
@@ -64,10 +64,10 @@ class NamesMatcher:
             final_match = "PERSON"
             potential_names_from_diminutive = get_names_from_diminutive(person)
             if potential_names_from_diminutive is not None:
-                for char in characters:
+                for character in characters:
                     for name in potential_names_from_diminutive:
-                        if name in char.lower().split():
-                            return char
+                        if name in character.lower().split():
+                            return character
 
         return final_match
 
@@ -82,6 +82,8 @@ class NamesMatcher:
                     if get_name_gender(match[0]) == title_gender:
                         final_match = match[0]
                         break
+        else:
+            final_match = potential_matches[0][0]
 
         return final_match
 
@@ -91,5 +93,4 @@ def get_partial_ratio_for_all_permutations(potential_match, character_name):
     partial_ratios = []
     for permutation in character_name_permutations:
         partial_ratios.append(fuzz.partial_ratio(' '.join(permutation), potential_match))
-
     return max(partial_ratios)
