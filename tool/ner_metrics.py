@@ -24,13 +24,13 @@ def organize_entities(entities_gold, entities_matcher, sentences, debug_mode=Fal
 
             else:
                 sent_matcher.append('-')  # if there isn't the same entity in predictions -> FN
-                sent_json['false_negative'].append(sentence[gold_entity[0]:gold_entity[1]])
+                sent_json['false_negative'].append(gold_entity)
 
         for matcher_entity in sent_matcher_entities:
             if matcher_entity not in sent_gold_entities:  # if there isn't the same entity in goldstandard -> FP
                 sent_gold.append('-')
                 sent_matcher.append(matcher_entity[2])
-                sent_json['false_positive'].append(sentence[matcher_entity[0]:matcher_entity[1]])
+                sent_json['false_positive'].append(matcher_entity)
 
         gold.extend(sent_gold)
         matcher.extend(sent_matcher)
