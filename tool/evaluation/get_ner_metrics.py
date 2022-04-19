@@ -17,11 +17,17 @@ if __name__ == "__main__":
     headers = ['Model', 'Precision', 'Recall', 'F-measure']
     metrics_table = []
 
-    for library in sorted(os.listdir(os.path.join('experiments', opt.results_dir))):
-        results = load_from_pickle(os.path.join('experiments', opt.results_dir,
-                                                library, opt.stats_path, 'overall_metrics'))
-        library = library.replace('__', ' ')
-        metrics_table.append([library] + results[:3])
+    libs = ['nltk', 'spacy__en_core_web_sm', 'spacy__en_core_web_md', 'spacy__en_core_web_lg',
+            'flair__ner-fast', 'flair__ner', 'flair__ner-large', 'stanza']
+    for library in libs:
+        try:
+            results = load_from_pickle(os.path.join('experiments', opt.results_dir,
+                                                    library, opt.stats_path, 'overall_metrics'))
+            library = library.replace('__', ' ')
+            metrics_table.append([library] + results[:3])
+        except:
+            pass
+
     results = tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex_booktabs')
     print(results)
 
