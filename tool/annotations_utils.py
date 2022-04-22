@@ -38,7 +38,7 @@ def personal_titles_stats(annotations):
                 title = anno['content'][(ent[0] - 8):ent[0]].split(' ')[-2].strip('"').strip("'")
                 try:
                     personal_title_not_annotated[title] += 1
-                except Error:
+                except KeyError:
                     print(title)
 
     return personal_title_annotated, personal_title_not_annotated

@@ -2,7 +2,6 @@ import collections
 import csv
 import os
 import numpy as np
-import gender_guesser.detector as gender_guesser
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 GENDER_FILE = os.path.join(ROOT_DIR, "additional_resources/gender_markers.csv")
@@ -28,15 +27,14 @@ def get_personal_titles():
     return np.array(titles)
 
 
-def get_name_gender(name):
+def get_name_gender(name, gender_detector):
     name_elements = name.split()
 
-    titles_gender = create_titles_and_gender_dictionary()
-    for element in name_elements:
-        if element.replace(".", "") in titles_gender.keys():
-            return str(titles_gender[element.replace(".", "")][0])
+    # titles_gender = create_titles_and_gender_dictionary()
+    # for element in name_elements:
+    #     if element.replace(".", "") in titles_gender.keys():
+    #         return str(titles_gender[element.replace(".", "")][0])
 
-    gender_detector = gender_guesser.Detector()
     gender = gender_detector.get_gender(name_elements[0])
     if gender == "andy" or gender == "unknown":
         if len(name_elements) > 1:
@@ -49,3 +47,5 @@ def get_name_gender(name):
         return 'f'
     if gender == "male" or gender == "mostly_male":
         return 'm'
+    if gender in ["mostly_female", "mostly_male"]:
+        print(name, gender)

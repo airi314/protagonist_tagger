@@ -2,9 +2,10 @@ import argparse
 import os
 import json
 from tqdm import tqdm
+import logging
 
 from tool.file_and_directory_management import open_path, read_file_to_list, \
-    dir_path, file_path
+    dir_path, file_path, mkdir
 from tool.model.utils import load_model
 from tool.preprocessing import get_test_data_for_novel
 
@@ -13,8 +14,11 @@ def main(titles_path, testing_data_dir_path, generated_data_dir, library='spacy'
          ner_model=None, fix_personal_titles=False, full_text=False):
     titles = read_file_to_list(titles_path)
     model = load_model(library, ner_model, False, fix_personal_titles)
+    mkdir(generated_data_dir)
+    logging.basicConfig(filename=os.path.join(generated_data_dir, 'ner.log'), level=logging.DEBUG, filemode='w')
 
     for title in tqdm(titles):
+        model.logger.debug("TITLE: " + title)
         test_data = get_test_data_for_novel(
             title, testing_data_dir_path, full_text)
         ner_result = model.get_ner_results(test_data, full_text)

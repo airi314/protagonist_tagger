@@ -19,8 +19,7 @@ def create_diminutives_dictionary():
 
 
 # returns all names and diminutives associated with the given diminutive
-def get_names_from_diminutive(diminutive):
-    diminutives_dictionary = create_diminutives_dictionary()
+def get_names_from_diminutive(diminutive, diminutives_dictionary):
     diminutive = diminutive.lower()
     if diminutive not in diminutives_dictionary:
         return None
@@ -28,5 +27,4 @@ def get_names_from_diminutive(diminutive):
     names = set().union(*diminutives_dictionary[diminutive])
     if diminutive in names:
         names.remove(diminutive)
-
     return names

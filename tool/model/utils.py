@@ -1,4 +1,4 @@
-def load_model(library, ner_model, save_personal_titles, fix_personal_titles=True):
+def load_model(library, ner_model, save_personal_titles, fix_personal_titles):
     if library == 'spacy':
         from tool.model.spacy_model import SpacyModel
         if ner_model is None:
