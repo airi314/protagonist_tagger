@@ -4,7 +4,7 @@ set -e
 # argument1 - name of experiment; subdirectory of 'experiments' directory
 # argument2 - flag; if '--fix_personal_titles' then personal titles annotations will be fixed
 
-for model in en_core_web_sm en_core_web_md en_core_web_lg; do
+for model in en_core_web_sm en_core_web_md en_core_web_lg en_core_web_trf; do
   python -m tool.scripts.annotate_protagonist data/novels_titles/combined_set.txt data/lists_of_characters data/testing_sets/test/ experiments/"$1"/spacy__${model}/ spacy ${model} "${@:2}"
 done
 

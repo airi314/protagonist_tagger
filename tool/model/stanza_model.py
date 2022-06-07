@@ -5,10 +5,10 @@ from tool.model.ner_model import NERModel
 
 class StanzaModel(NERModel):
 
-    def __init__(self, save_personal_titles, fix_personal_titles):
+    def __init__(self, model_path, save_personal_titles, fix_personal_titles):
 
         super().__init__(save_personal_titles, fix_personal_titles)
-        self.model = stanza.Pipeline('en', processors='tokenize,ner', tokenize_no_ssplit=True,
+        self.model = stanza.Pipeline('en', processors={'ner': model_path}, tokenize_no_ssplit=True,
                                      logging_level='ERROR', use_gpu=False)
         self.logger.info('Stanza model loaded.')
 
@@ -17,7 +17,7 @@ class StanzaModel(NERModel):
         entities = []
 
         for index, ent in enumerate(doc.entities):
-            if ent.type == "PERSON":
+            if ent.type == "PERSON" or ent.type == "PER":
                 ent_text = text[ent.start_char:ent.end_char]
                 self.logger.debug("ENTITY FOUND: " + ent_text)
                 if self.fix_personal_titles and ent_text.startswith(

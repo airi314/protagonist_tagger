@@ -3,3 +3,5 @@ experiments/
 stats/
 .ipynb_checkpoints/
 resources/
+*.png
+notebooks/

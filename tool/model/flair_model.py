@@ -22,28 +22,30 @@ class FlairModel(NERModel):
         entities = []
         for ent in doc.get_spans("ner"):
             if ent.labels[0].to_dict()["value"] == "PER":
-                ent_text = text[ent.start_pos:ent.end_pos]
+                ent_id = ent[0].idx
+                start, end = ent.start_position, ent.end_position
+                ent_text = text[start:end]
                 self.logger.debug("ENTITY FOUND: " + ent_text)
                 if self.fix_personal_titles and ent_text.startswith(
                         self.personal_titles) and len(ent_text.split()) > 1:
-                    ent.start_pos += (1 + len(ent_text.split(' ')[0]))
-                    ent[0].idx += 1
+                    start += (1 + len(ent_text.split(' ')[0]))
+                    ent_id += 1
                     self.logger.debug(
-                        "ENTITY WITHOUT TITLE: " + text[ent.start_pos:ent.end_pos])
-                if ent.start_pos < ent.end_pos:
+                            "ENTITY WITHOUT TITLE: " + text[start:end])
+                if start < end:
                     if self.save_personal_titles:
                         personal_title = self.recognize_personal_title(
-                            ent, doc)
+                            ent_id, doc)
                         entities.append(
-                            [ent.start_pos, ent.end_pos, "PERSON", personal_title])
+                            [start, end, "PERSON", personal_title])
                     else:
-                        entities.append([ent.start_pos, ent.end_pos, "PERSON"])
+                        entities.append([start, end, "PERSON"])
 
         return text, entities
 
-    def recognize_personal_title(self, ent, doc):
+    def recognize_personal_title(self, ent_id, doc):
         personal_title = None
-        token_id = ent[0].idx - 1
+        token_id = ent_id - 1
         if token_id > 0:
             word_before_name = doc.tokens[token_id - 1].text
             if word_before_name in self.personal_titles:

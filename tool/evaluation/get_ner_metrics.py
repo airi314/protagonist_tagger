@@ -1,9 +1,9 @@
-import os
-import tabulate
 import argparse
+import os
+
+import tabulate
 
 from tool.file_and_directory_management import open_path, load_from_pickle
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -17,8 +17,8 @@ if __name__ == "__main__":
     headers = ['Model', 'Precision', 'Recall', 'F-measure']
     metrics_table = []
 
-    libs = ['nltk', 'spacy__en_core_web_sm', 'spacy__en_core_web_md', 'spacy__en_core_web_lg',
-            'flair__ner-fast', 'flair__ner', 'flair__ner-large', 'stanza']
+    libs = ['nltk', 'spacy__en_core_web_sm', 'spacy__en_core_web_md', 'spacy__en_core_web_lg', 'spacy__en_core_web_trf',
+            'flair__ner-fast', 'flair__ner', 'flair__ner-large', 'stanza__ontonotes', 'stanza__conll03']
     for library in libs:
         try:
             results = load_from_pickle(os.path.join('experiments', opt.results_dir,

@@ -16,7 +16,9 @@ def load_model(library, ner_model, save_personal_titles, fix_personal_titles):
 
     elif library == 'stanza':
         from tool.model.stanza_model import StanzaModel
-        model = StanzaModel(save_personal_titles, fix_personal_titles)
+        if ner_model is None:
+            ner_model = 'ontonotes'
+        model = StanzaModel(ner_model, save_personal_titles, fix_personal_titles)
 
     elif library == 'flair':
         from tool.model.flair_model import FlairModel

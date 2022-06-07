@@ -125,8 +125,8 @@ def get_results(stats_path, titles):
 
     for title in titles:
         metrics_title = load_from_pickle(os.path.join(stats_path, title))
-        metrics_table.append([title].__add__([m for m in metrics_title]))
-
+        metrics_table.append([title].__add__([m for m in metrics_title[:3]]))
+    
     metrics_overall = load_from_pickle(
         os.path.join(stats_path, 'overall_metrics'))
     metrics_table.append(
