@@ -48,3 +48,16 @@ def read_annotations(annotation_path):
         annotations = f.read()
     annotations = json.loads(annotations)
     return annotations
+
+
+def data_from_json(path):
+    with open(path, encoding='utf-8') as train_data:
+        train = json.load(train_data)
+
+    entities = []
+    contents = []
+    for data in train:
+        entities.append(data['entities'])
+        contents.append(data['content'])
+
+    return entities, contents

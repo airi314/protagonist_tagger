@@ -5,14 +5,14 @@ from tqdm import tqdm
 import logging
 
 from tool.names_matcher import NamesMatcher
-from tool.preprocessing import get_test_data_for_novel, get_characters_for_novel
+from tool.preprocessing import get_test_data_for_novel, get_characters_for_novel, get_pride_and_prejudice
 from tool.file_and_directory_management import open_path, read_file_to_list, dir_path, file_path, mkdir
 from tool.annotations_utils import read_annotations
 
 
 def main(titles_path, characters_lists_dir_path, testing_data_dir_path,
          generated_data_dir, library, ner_model, precision, matcher_rules,
-         fix_personal_titles, full_text, save_ner):
+         fix_personal_titles, full_text, pride_and_prejudice, save_ner):
     titles = read_file_to_list(titles_path)
     names_matcher = NamesMatcher(
         precision,
@@ -29,8 +29,11 @@ def main(titles_path, characters_lists_dir_path, testing_data_dir_path,
 
     for title in tqdm(titles):
         names_matcher.logger.debug("TITLE: " + title)
-        test_data = get_test_data_for_novel(
-            title, testing_data_dir_path, full_text)
+        if pride_and_prejudice:
+            test_data = get_pride_and_prejudice(title, testing_data_dir_path, False)
+        else:
+            test_data = get_test_data_for_novel(
+                title, testing_data_dir_path, full_text)
         characters = get_characters_for_novel(title, characters_lists_dir_path)
         ner_path = os.path.join(generated_data_dir, 'ner', title + ".json")
 
@@ -70,6 +73,7 @@ if __name__ == "__main__":
                         help="precision threshold for string similarity")
     parser.add_argument('--fix_personal_titles', action='store_true')
     parser.add_argument('--full_text', action='store_true')
+    parser.add_argument('--pride_and_prejudice', action='store_true')
     parser.add_argument('--save_ner', action='store_true')
     parser.add_argument('--not_check_diminutive', action='store_true')
     parser.add_argument('--not_match_personal_title_100', action='store_true')
@@ -88,4 +92,5 @@ if __name__ == "__main__":
 
     main(opt.titles_path, opt.characters_lists_dir_path, opt.testing_data_dir_path,
          opt.generated_data_dir, opt.library, opt.ner_model, opt.precision,
-         rules, opt.fix_personal_titles, opt.full_text, opt.save_ner)
+         rules, opt.fix_personal_titles, opt.full_text,
+         opt.pride_and_prejudice, opt.save_ner)

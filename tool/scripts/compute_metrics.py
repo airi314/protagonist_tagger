@@ -1,20 +1,32 @@
 import argparse
 
-from tool.ner_metrics import metrics
+from tool.ner_metrics import metrics as ner_metrics
+from tool.coreference_metrics import metrics as coreference_metrics
+
 from tool.file_and_directory_management import dir_path, file_path
 
-
 def main(titles_path, gold_standard_dir_path,
-         testing_set_dir_path, stats_dir, protagonist_tagger=False, print_results=False, debug_mode=False):
-    metrics(
-        titles_path,
-        gold_standard_dir_path,
-        testing_set_dir_path,
-        stats_dir,
-        protagonist_tagger,
-        print_results,
-        debug_mode
-    )
+         testing_set_dir_path, stats_dir, protagonist_tagger=False,
+         coreference_resolution=False, print_results=False, debug_mode=False):
+
+    if coreference_resolution:
+        coreference_metrics(
+            titles_path,
+            gold_standard_dir_path,
+            testing_set_dir_path,
+            stats_dir,
+            print_results,
+        )
+    else:
+        ner_metrics(
+            titles_path,
+            gold_standard_dir_path,
+            testing_set_dir_path,
+            stats_dir,
+            protagonist_tagger,
+            print_results,
+            debug_mode
+        )
 
 
 if __name__ == "__main__":
@@ -29,9 +41,12 @@ if __name__ == "__main__":
                         help="directory where the computed statistics should be stored")
     parser.add_argument('--protagonist_tagger', action='store_true',
                         help="if metrics for protagonist_tagger should be calculated")
+    parser.add_argument('--coreference_resolution', action='store_true',
+                        help="if metrics for coreference resolution should be calculated")
     parser.add_argument('--print_results', action='store_true',
                         help="if calculated results should be printed to the console")
     parser.add_argument('--debug_mode', action='store_true')
     opt = parser.parse_args()
     main(opt.titles_path, opt.gold_standard_dir_path, opt.testing_set_dir_path,
-         opt.stats_dir, opt.protagonist_tagger, opt.print_results, opt.debug_mode)
+         opt.stats_dir, opt.protagonist_tagger, opt.coreference_resolution,
+         opt.print_results, opt.debug_mode)
