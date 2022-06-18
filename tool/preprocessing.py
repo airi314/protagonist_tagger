@@ -39,12 +39,17 @@ def get_test_data_for_novel(title, testing_data_dir_path, full_text):
         return read_sentences_from_file(os.path.join(testing_data_dir_path, title))
 
 
-def get_pride_and_prejudice(title, testing_data_dir_path):
+def get_pride_and_prejudice(title, testing_data_dir_path, full_text=True):
     text = read_file(os.path.join(testing_data_dir_path, title))
-    parts = text.split('\n\n')
-    parts = [' '.join(p.split('\n')) for p in parts]
-    return parts
-
+    if full_text:
+        return text
+    else:
+        return text.split('\n\n')
+    # print(parts[0])
+    # parts = [' '.join(p.split('\n')) for p in parts]
+    # print(parts[0])
+    # if full_text:
+    #     return '\n\n'.join(parts)
 
 def get_characters_for_novel(title, characters_lists_dir_path):
     return read_file_to_list(os.path.join(characters_lists_dir_path, title))

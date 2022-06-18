@@ -23,7 +23,7 @@ class FlairModel(NERModel):
         for ent in doc.get_spans("ner"):
             if ent.labels[0].to_dict()["value"] == "PER":
                 ent_id = ent[0].idx
-                start, end = ent.start_position, ent.end_position
+                start, end = ent.start_pos, ent.end_pos
                 ent_text = text[start:end]
                 self.logger.debug("ENTITY FOUND: " + ent_text)
                 if self.fix_personal_titles and ent_text.startswith(

@@ -4,7 +4,7 @@ import tabulate
 import os
 
 from tool.file_and_directory_management import read_file_to_list, save_to_pickle, load_from_pickle
-from tool.data_generator import data_from_json
+from tool.annotations_utils import data_from_json
 
 
 def organize_entities(entities_gold, entities_matcher,
@@ -44,6 +44,7 @@ def organize_entities(entities_gold, entities_matcher,
         if debug_mode and (sent_json['false_positive']
                            or sent_json['false_negative']):
             sentence_errors.append(sent_json)
+
 
     return gold, matcher, sentence_errors
 
