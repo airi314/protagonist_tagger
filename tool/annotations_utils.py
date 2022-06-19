@@ -35,13 +35,15 @@ def personal_titles_stats(annotations):
                 title = text.split(' ')[0]
                 personal_title_annotated[title] += 1
             elif any(ext in anno['content'][(ent[0] - 8):ent[0]] for ext in personal_titles):
-                title = anno['content'][(ent[0] - 8):ent[0]].split(' ')[-2].strip('"').strip("'")
+                title = anno['content'][(
+                    ent[0] - 8):ent[0]].split(' ')[-2].strip('"').strip("'")
                 try:
                     personal_title_not_annotated[title] += 1
                 except KeyError:
                     print(title)
 
     return personal_title_annotated, personal_title_not_annotated
+
 
 def read_annotations(annotation_path):
     with open(annotation_path) as f:

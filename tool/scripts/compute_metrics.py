@@ -5,6 +5,7 @@ from tool.coreference_metrics import metrics as coreference_metrics
 
 from tool.file_and_directory_management import dir_path, file_path
 
+
 def main(titles_path, gold_standard_dir_path,
          testing_set_dir_path, stats_dir, protagonist_tagger=False,
          coreference_resolution=False, print_results=False, debug_mode=False):

@@ -10,7 +10,11 @@ from tool.file_and_directory_management import read_file_to_list, write_text_to_
 from tool.file_and_directory_management import dir_path, file_path
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-COMMON_NAMES_FILE = os.path.join(ROOT_DIR.replace("/scripts", ""), "additional_resources/common_names.txt")
+COMMON_NAMES_FILE = os.path.join(
+    ROOT_DIR.replace(
+        "/scripts",
+        ""),
+    "additional_resources/common_names.txt")
 
 
 # common_names_path - path to .txt file containing a list of common English names that should be injected to extend a
@@ -34,14 +38,16 @@ def get_names_to_be_replaced(characters):
 #       files should be the same as titles on the list from titles_path)
 # novels_texts_dir_path - directory of .txt files containing full novels texts (names of files should be the same as
 #       titles on the list from titles_path)
-# training_set_dir - path to the directory where the generated training set should be saved
+# training_set_dir - path to the directory where the generated training
+# set should be saved
 def extract_sentences_for_names_injection(titles, number_of_sentences, characters_lists_dir_path,
                                           novels_texts_dir_path, training_set_dir):
-    sentences_per_novel = number_of_sentences/len(titles)
+    sentences_per_novel = number_of_sentences / len(titles)
     nlp = spacy.load("en_core_web_sm")
 
     for title in titles:
-        characters = read_file_to_list(os.path.join(characters_lists_dir_path, title))
+        characters = read_file_to_list(
+            os.path.join(characters_lists_dir_path, title))
         novel_text = read_file(os.path.join(novels_texts_dir_path, title))
         names_to_be_replaced = get_names_to_be_replaced(characters)
         doc = nlp(novel_text)
@@ -95,22 +101,31 @@ def inject_common_names(common_names, sentences, names_to_be_replaced):
 #       titles on the list from titles_path)
 # sentences_per_common_name - the upper limit for number of injections of each common English name from a list that
 #       should be included in the training set
-# training_set_dir - path to the directory where the generated training set should be saved
-def main(titles_path, characters_lists_dir_path, novels_texts_dir_path, sentences_per_common_name, training_set_dir):
+# training_set_dir - path to the directory where the generated training
+# set should be saved
+def main(titles_path, characters_lists_dir_path, novels_texts_dir_path,
+         sentences_per_common_name, training_set_dir):
     titles = read_file_to_list(titles_path)
     common_names = get_common_names()
-    number_sentences_to_extracted = sentences_per_common_name * len(common_names)
+    number_sentences_to_extracted = sentences_per_common_name * \
+        len(common_names)
     extract_sentences_for_names_injection(titles, number_sentences_to_extracted, characters_lists_dir_path,
                                           novels_texts_dir_path, training_set_dir)
     sentences = []
     names_to_be_replaced = []
     for title in titles:
-        data = read_sentences_from_file(os.path.join(training_set_dir, "extracted_sentences", title))
+        data = read_sentences_from_file(
+            os.path.join(
+                training_set_dir,
+                "extracted_sentences",
+                title))
         sentences.extend(data)
-        characters = read_file_to_list(os.path.join(characters_lists_dir_path, title))
+        characters = read_file_to_list(
+            os.path.join(characters_lists_dir_path, title))
         names_to_be_replaced.extend(get_names_to_be_replaced(characters))
 
-    training_set, updated_sentences = inject_common_names(common_names, sentences, names_to_be_replaced)
+    training_set, updated_sentences = inject_common_names(
+        common_names, sentences, names_to_be_replaced)
     with open(os.path.join(training_set_dir, "training_set.json"), 'w+') as result:
         json.dump(training_set, result)
 

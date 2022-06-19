@@ -1,9 +1,8 @@
+from inference.model_inference import Inference
+from tool.coreference.coreference_model import CoreferenceModel
 import os
 import sys
 sys.path.append('resources/fast-coref/src')
-
-from tool.coreference.coreference_model import CoreferenceModel
-from inference.model_inference import Inference
 
 
 class FastCoref(CoreferenceModel):
@@ -14,7 +13,7 @@ class FastCoref(CoreferenceModel):
         self.model.device = 'cpu'
         self.save_singletons = save_singletons
 
-    def get_clusters(self, doc, start_cluster_id = None, save_conll = False):
+    def get_clusters(self, doc, start_cluster_id=None, save_conll=False):
         output = self.model.perform_coreference(doc)
         print('doc', doc[:200])
         if save_conll:
@@ -25,7 +24,8 @@ class FastCoref(CoreferenceModel):
     def write_conll(self, output, start_cluster_id):
 
         results = []
-        for token_id, token in enumerate(output['tokenized_doc']['orig_tokens']):
+        for token_id, token in enumerate(
+                output['tokenized_doc']['orig_tokens']):
             line = ['title', '0', str(token_id), token, '']
             results.append(line)
 
@@ -38,10 +38,13 @@ class FastCoref(CoreferenceModel):
                     token_start = output['tokenized_doc']['subtoken_map'][mention[0][0]]
                     token_end = output['tokenized_doc']['subtoken_map'][mention[0][1]]
                     if token_start == token_end:
-                        results[token_start][4] += '(' + str(start_cluster_id+cluster_id) + ')' + '|'
+                        results[token_start][4] += '(' + str(
+                            start_cluster_id + cluster_id) + ')' + '|'
                     else:
-                        results[token_start][4] += '(' + str(start_cluster_id+cluster_id) + '|'
-                        results[token_end][4] += str(start_cluster_id+cluster_id) + ')' + '|'
+                        results[token_start][4] += '(' + \
+                            str(start_cluster_id + cluster_id) + '|'
+                        results[token_end][4] += str(
+                            start_cluster_id + cluster_id) + ')' + '|'
 
         for token_id in range(len(results)):
             if results[token_id][4] == '':
@@ -50,8 +53,7 @@ class FastCoref(CoreferenceModel):
                 results[token_id][4] = results[token_id][4][:-1]
             results[token_id] = '\t'.join(results[token_id])
 
-        return results, start_cluster_id+cluster_id if cluster_id else start_cluster_id
-
+        return results, start_cluster_id + cluster_id if cluster_id else start_cluster_id
 
     def write_json(self, doc, output):
         results = {'content': doc, 'clusters': []}
@@ -97,4 +99,3 @@ class FastCoref(CoreferenceModel):
             position = position + start_position + len(token)
             # print(position + start_position, position + start_position + len(token))
         return token_spans
-

@@ -31,7 +31,7 @@ class FlairModel(NERModel):
                     start += (1 + len(ent_text.split(' ')[0]))
                     ent_id += 1
                     self.logger.debug(
-                            "ENTITY WITHOUT TITLE: " + text[start:end])
+                        "ENTITY WITHOUT TITLE: " + text[start:end])
                 if start < end:
                     if self.save_personal_titles:
                         personal_title = self.recognize_personal_title(

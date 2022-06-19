@@ -62,7 +62,7 @@ def organize_entities(gold, pred):
                         line.iloc[0].text = t2
                         mention = line.iloc[0].mention
                         if mention:
-                            mentions = re.findall('[(]?\d+[)]?', mention)
+                            mentions = re.findall('[(]?\\d+[)]?', mention)
                             line.mention = ''
                             gold.iloc[i].mention = ''
                             for m in mentions:
@@ -81,7 +81,7 @@ def organize_entities(gold, pred):
                     line.text = t1
                     mention = line.iloc[0].mention
                     if mention:
-                        mentions = re.findall('[(]?\d+[)]?', mention)
+                        mentions = re.findall('[(]?\\d+[)]?', mention)
                         line.mention = ''
                         pred.iloc[i].mention = ''
                         for m in mentions:
@@ -146,7 +146,7 @@ def calculate_metrics(gold, pred):
     metrics_parsed = [[l for l in metric.split('\n') if l.strip()] for metric
                       in
                       metrics_parsed]
-    scores = [re.findall('\d*[.]*\d+(?=[%])', metric[-2]) for metric in
+    scores = [re.findall('\\d*[.]*\\d+(?=[%])', metric[-2]) for metric in
               metrics_parsed]
     metric_names = [metric[0].replace(':', '').strip() for metric in
                     metrics_parsed]
@@ -173,7 +173,8 @@ def compute_overall_stats(titles, gold_standard_path,
 
     overall_mean = {}
     for key in metrics_overall[0].keys():
-        overall_mean[key] = [sum(d[key][i] for d in metrics_overall) / len(metrics_overall) for i in range(3)]
+        overall_mean[key] = [
+            sum(d[key][i] for d in metrics_overall) / len(metrics_overall) for i in range(3)]
     save_to_pickle(overall_mean, os.path.join(stats_path, 'overall_metrics'))
     return metrics_overall
 
@@ -200,7 +201,8 @@ def get_results(stats_path, titles):
 
     for title in titles:
         metrics_title = load_from_pickle(os.path.join(stats_path, title))
-        metrics_table.append([title].__add__([m[2] for m in list(metrics_title.values())]))
+        metrics_table.append([title].__add__([m[2]
+                             for m in list(metrics_title.values())]))
 
     metrics_overall = load_from_pickle(
         os.path.join(stats_path, 'overall_metrics'))

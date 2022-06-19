@@ -8,7 +8,8 @@ import numpy as np
 from tool.file_and_directory_management import read_file_to_list, file_path
 
 
-def main(titles_path, protagonist_data_dir, coreference_data_dir, generated_data_dir, skip_ambiguous):
+def main(titles_path, protagonist_data_dir, coreference_data_dir,
+         generated_data_dir, skip_ambiguous):
     titles = read_file_to_list(titles_path)
 
     for title in tqdm(titles):
@@ -25,7 +26,8 @@ def main(titles_path, protagonist_data_dir, coreference_data_dir, generated_data
         for cluster in coref_results['clusters']:
             possible_matches = []
             matches = []
-            for ent_ner, ent_protagonist in zip(ner_results[0]['entities'], protagonist_results[0]['entities']):
+            for ent_ner, ent_protagonist in zip(
+                    ner_results[0]['entities'], protagonist_results[0]['entities']):
                 ent_ner[0] -= len(ent_ner[3]) + 1
                 if ent_protagonist[:2] in cluster or ent_ner[:2] in cluster:
                     matches.append(ent_protagonist)
@@ -45,8 +47,9 @@ def main(titles_path, protagonist_data_dir, coreference_data_dir, generated_data
             for mention in cluster:
                 combined_results.append((mention[0], mention[1], match))
 
-
-        results_dict = {'content': ner_results[0]['content'], 'mentions': combined_results}
+        results_dict = {
+            'content': ner_results[0]['content'],
+            'mentions': combined_results}
         path = os.path.join(generated_data_dir, title + ".json")
 
         if not os.path.exists(os.path.dirname(path)):
@@ -66,4 +69,9 @@ if __name__ == "__main__":
                         help="directory where generated data should be stored")
     parser.add_argument('--skip_ambiguous', action='store_true')
     opt = parser.parse_args()
-    main(opt.titles_path, opt.ner_data_dir, opt.coreference_data_dir, opt.generated_data_dir, opt.skip_ambiguous)
+    main(
+        opt.titles_path,
+        opt.ner_data_dir,
+        opt.coreference_data_dir,
+        opt.generated_data_dir,
+        opt.skip_ambiguous)

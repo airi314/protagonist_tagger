@@ -10,7 +10,11 @@ class TransformerModel(NERModel):
         super().__init__(save_personal_titles, fix_personal_titles)
         self.tokenizer = AutoTokenizer.from_pretrained(model_path)
         model = AutoModelForTokenClassification.from_pretrained(model_path)
-        self.model = pipeline("token-classification", aggregation_strategy="simple", model=model, tokenizer=self.tokenizer)
+        self.model = pipeline(
+            "token-classification",
+            aggregation_strategy="simple",
+            model=model,
+            tokenizer=self.tokenizer)
         self.logger.info('Transformers model loaded.')
 
     def get_doc_entities(self, text):
@@ -22,10 +26,12 @@ class TransformerModel(NERModel):
                 start, end = ent['start'], ent['end']
                 start, end = self.fix_entity(start, end, tokens)
                 ent_text = text[start:end]
-                if self.fix_personal_titles and ent_text.startswith(self.personal_titles):
+                if self.fix_personal_titles and ent_text.startswith(
+                        self.personal_titles):
                     start += (1 + len(ent_text.split(' ')[0]))
                 if self.save_personal_titles:
-                    personal_title = self.recognize_personal_title(ent, text, tokens)
+                    personal_title = self.recognize_personal_title(
+                        ent, text, tokens)
                     if [start, end, "PERSON", personal_title] not in entities:
                         entities.append([start, end, "PERSON", personal_title])
                 elif not [start, end, "PERSON"] in entities:
@@ -34,8 +40,10 @@ class TransformerModel(NERModel):
         entities_merged = []
         i = 0
         while i < len(entities):
-            if i < len(entities) -1 and entities[i][1] + 1 == entities[i+1][0]:
-                entities_merged.append([entities[i][0], entities[i+1][1], "PERSON"])
+            if i < len(entities) - \
+                    1 and entities[i][1] + 1 == entities[i + 1][0]:
+                entities_merged.append(
+                    [entities[i][0], entities[i + 1][1], "PERSON"])
                 i += 2
             else:
                 entities_merged.append(entities[i])
@@ -46,7 +54,7 @@ class TransformerModel(NERModel):
         personal_title = None
         if ent['start'] > 0:
             token_index = tokens.char_to_word(ent[0])
-            previous_token = tokens.word_to_chars(token_index-1)
+            previous_token = tokens.word_to_chars(token_index - 1)
             word_before_name = text[previous_token.start:previous_token.end]
             if word_before_name == '.':
                 previous_token = tokens.word_to_chars(token_index - 1)

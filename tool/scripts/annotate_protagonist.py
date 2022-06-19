@@ -6,7 +6,7 @@ import logging
 
 from tool.names_matcher import NamesMatcher
 from tool.preprocessing import get_test_data_for_novel, get_characters_for_novel, get_pride_and_prejudice
-from tool.file_and_directory_management import open_path, read_file_to_list, dir_path, file_path, mkdir
+from tool.file_and_directory_management import write_text_to_file, read_file_to_list, dir_path, file_path, mkdir
 from tool.annotations_utils import read_annotations
 
 
@@ -30,7 +30,8 @@ def main(titles_path, characters_lists_dir_path, testing_data_dir_path,
     for title in tqdm(titles):
         names_matcher.logger.debug("TITLE: " + title)
         if pride_and_prejudice:
-            test_data = get_pride_and_prejudice(title, testing_data_dir_path, False)
+            test_data = get_pride_and_prejudice(
+                title, testing_data_dir_path, False)
         else:
             test_data = get_test_data_for_novel(
                 title, testing_data_dir_path, full_text)
@@ -46,12 +47,12 @@ def main(titles_path, characters_lists_dir_path, testing_data_dir_path,
                 test_data, full_text)
 
         if save_ner and not os.path.exists(ner_path):
-            open_path(ner_path, 'w').write(json.dumps(ner_results))
+            write_text_to_file(ner_path, json.dumps(ner_results))
 
         matcher_results = names_matcher.recognize_person_entities(
             ner_results, characters)
         path = os.path.join(generated_data_dir, title + '.json')
-        open_path(path, 'w').write(json.dumps(matcher_results))
+        write_text_to_file(path, json.dumps(matcher_results))
 
 
 if __name__ == "__main__":

@@ -11,12 +11,10 @@ class NeuralCoref(CoreferenceModel):
         neuralcoref.add_to_pipe(self.model)
         self.save_singletons = save_singletons
 
-
-    def get_clusters(self, doc, start_cluster_id = None, save_conll = False):
+    def get_clusters(self, doc, start_cluster_id=None, save_conll=False):
         output = self.model(doc)
         if save_conll:
             return self.write_conll(output, start_cluster_id)
-
 
     def write_conll(self, output, start_cluster_id):
 
@@ -35,10 +33,13 @@ class NeuralCoref(CoreferenceModel):
                     token_start = mention.start
                     token_end = mention.end - 1
                     if token_start == token_end:
-                        results[token_start][4] += '(' + str(start_cluster_id+cluster_id) + ')' + '|'
+                        results[token_start][4] += '(' + str(
+                            start_cluster_id + cluster_id) + ')' + '|'
                     else:
-                        results[token_start][4] += '(' + str(start_cluster_id+cluster_id) + '|'
-                        results[token_end][4] += str(start_cluster_id+cluster_id) + ')' + '|'
+                        results[token_start][4] += '(' + \
+                            str(start_cluster_id + cluster_id) + '|'
+                        results[token_end][4] += str(
+                            start_cluster_id + cluster_id) + ')' + '|'
 
         for token_id in range(len(results)):
             if results[token_id][4] == '':
@@ -47,4 +48,4 @@ class NeuralCoref(CoreferenceModel):
                 results[token_id][4] = results[token_id][4][:-1]
             results[token_id] = '\t'.join(results[token_id])
 
-        return results, start_cluster_id+cluster_id if cluster_id else start_cluster_id
+        return results, start_cluster_id + cluster_id if cluster_id else start_cluster_id

@@ -1,9 +1,10 @@
 import numpy as np
-from sklearn.metrics import precision_recall_fscore_support
 import tabulate
 import os
+from sklearn.metrics import precision_recall_fscore_support
 
-from tool.file_and_directory_management import read_file_to_list, save_to_pickle, load_from_pickle
+from tool.file_and_directory_management import read_file_to_list, \
+    save_to_pickle, load_from_pickle
 from tool.annotations_utils import data_from_json
 
 
@@ -44,7 +45,6 @@ def organize_entities(entities_gold, entities_matcher,
         if debug_mode and (sent_json['false_positive']
                            or sent_json['false_negative']):
             sentence_errors.append(sent_json)
-
 
     return gold, matcher, sentence_errors
 
@@ -127,7 +127,7 @@ def get_results(stats_path, titles):
     for title in titles:
         metrics_title = load_from_pickle(os.path.join(stats_path, title))
         metrics_table.append([title].__add__([m for m in metrics_title[:3]]))
-    
+
     metrics_overall = load_from_pickle(
         os.path.join(stats_path, 'overall_metrics'))
     metrics_table.append(

@@ -20,9 +20,11 @@ def main(training_set_dir_path, output_dir, random_seed, max_epochs,
     columns = {0: 'text', 1: 'ner'}
 
     corpus = ColumnCorpus('.', columns,
-                            train_file=os.path.join(training_set_dir_path, 'train.txt'),
-                            dev_file=os.path.join(training_set_dir_path, 'dev.txt')
-                            )
+                          train_file=os.path.join(
+                              training_set_dir_path, 'train.txt'),
+                          dev_file=os.path.join(
+                              training_set_dir_path, 'dev.txt')
+                          )
 
     trainer = ModelTrainer(tagger, corpus)
     trainer.train(output_dir,

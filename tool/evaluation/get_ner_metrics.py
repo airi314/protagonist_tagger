@@ -25,12 +25,14 @@ if __name__ == "__main__":
                                                     library, opt.stats_path, 'overall_metrics'))
             library = library.replace('__', ' ')
             metrics_table.append([library] + results[:3])
-        except:
+        except BaseException:
             pass
 
-    results = tabulate.tabulate(metrics_table, headers=headers, tablefmt='latex_booktabs')
+    results = tabulate.tabulate(
+        metrics_table,
+        headers=headers,
+        tablefmt='latex_booktabs')
     print(results)
 
     if opt.save_path:
         open_path(opt.save_path, 'w').write(results)
-
