@@ -1,12 +1,13 @@
-# Protagonists' Catcher in Novels -- A Dataset and A Method
-Semantic annotation of long texts, such as novels, remains an open challenge in the field of Semantic Web (SW) and Natural Language Processing (NLP). Recognizing and identifying literary characters in full-text novels is the first step for a more detailed literary text analysis. This research investigates the problem of ontology population, i.e. recognizing people (especially main characters) in novels and annotating them. We prepared a tool -- **protagonistTagger** -- for this annotation and a dataset to test it. 
+# ProtagonistTagger 
+## Tagging Mentions of Persons -- Recognition and Disambiguation -- in Natural Language Texts
 
-Our process of identifying literary characters in a text, implemented in **protagonistTagger**, comprises two stages: (1) named entity recognition (NER) of persons, (2) matching method of each recognized person with the literary character's full name associated with it, based on **approximate text matching**. 
+Natural Language Understanding (NLU) is a constantly evolving field of science that allows computers to understand more complex texts. It can be very beneficial in literary text analysis. The first and most crucial step in understanding the story of a book is detecting and linking its protagonists.
 
-The performance of **protagonistTagger** in thirteen full-text novels shows that the tool achieved both precision and recall above 80%. The test datasets comprise 1300 sentences from classic novels of different genres that a novel reader had annotated. 
+This work is a continuation and an extension of a previous project in the literature domain -- thesis *Preparation of Sets and Machine Learning Models for Recognizing Names of Literary Characters* written by Weronika Łajewska. The final effect of that work was a tool that detects person-type entities in text and then assigns them to specific heroes. 
 
-Exemplary annotations (written in between --*assigned_tag*--) performed by **protagonistTagger**:
->"Her disappointment in **Charlotte --Charlotte Lucas--** made her turn with fonder regard to her sister, of whose rectitude and delicacy she was sure her opinion could never be shaken, and for whose happiness she grew daily more anxious, as **Bingley --Charles Bingley--** had now been gone a week and nothing more was heard of his return. **Jane --Jane Bennet--** had sent **Caroline --Caroline Bingley--** an early answer to her letter and was counting the days till she might reasonably hope to hear again. The promised letter of thanks from **Mr. Collins --Mr William Collins--** arrived on Tuesday, addressed to their father, and written with all the solemnity of gratitude which a twelvemonth’s abode in the family might have prompted."  
+In this work, I have improved the tool and tests, particularly: (1) enhanced the results achieved by the NER model in recognizing people, (2) extended and made more general the rules for heroes' disambiguation, and (3) incorporated detection of mentions of characters in the form of pronouns and nominals. This work also includes adapting open datasets to the Coreference Resolution and using them to evaluate *protagonistTagger* tool.
+
+[comment]: <> (![alt text here]&#40;example_output.png&#41;)
 
 ## Installation
 
@@ -16,53 +17,46 @@ To clone this repository you should run following command:
 git clone https://github.com/airi314/protagonist_tagger
 ```
 
-Then Python environment should be installed. One way to do it is:
+We use several repositories which should be cloned into `resources` directory.
 ```bash
-conda env create -f env.yml
-conda activate protagonist
+cd protagonist_tagger
+mkdir resources
+git clone https://github.com/shtoshni/fast-coref
+git clone https://github.com/shtoshni/long-doc-coref
+git clone https://github.com/vdobrovolskii/wl-coref
+git clone https://github.com/conll/reference-coreference-scorers
+git clone https://github.com/dbamman/litbank
 ```
 
-## General Project Workflow
-The process of creating the corpus of annotated novels and the **protagonistTagger** tool comprises several stages:
-- Gathering an initial corpus with plain novels' texts without annotations. 
-- Creating a list of full names of all protagonists for each novel in the initial corpus. These names are the predefined tags that will be used in further steps for annotations.
-- Recognizing named entity of category **PERSON** in the texts of the novels in the initial corpus. Training NER model from scratch for this specific problem is not reasonable due to the amount of time and computing power it requires. It is possible to use some pre-trained NER model and fine-tune it using a sample of manually annotated data. The evaluation of the NER mechanism is done on a testing set extracted from the full texts of novels. The task is quite complex and may include several iterations.
-- Each named entity of category **PERSON**  recognized by NER in the previous step is a potential candidate to be annotated with one of our tags predefined in step 3. At this point, an algorithm (let us call it **matching algorithm** for reference), based on approximate string matching, is used to choose from the list of predefined tags the one that matches most accurately the recognized named entity. 
-- The annotations done by the **matching algorithm** are accessed according to their accuracy and correctness.
+## Project Workflow
 
-The **protagonistTagger** (fine-tuned NER + matching algorithm) is used to annotate more novels in order to create the corpus of annotated novels. 
+The workflow of the refined version of the *protagonistTagger* tool consists of several steps:
+* **Building a list of main characters** -- This step is based on Wikipedia scraping.
+* **Detection of all character occurrences** -- It means finding all *person* type entities in the text based on the Named Entity Recognition (NER) model fine-tuned on literary texts.
+* **Disambiguation of character occurrences** -- It means assigning a corresponding protagonist name from the list of main characters to each person entity found. It is based on the similarity of strings, as well as gender and personal title rules.
+* **Extending the mentions of characters with pronouns and nominals** -- In this step Coreference Resolution model is applied, and pronouns such as *he* or nominals like *his wife* are assigned to proper protagonists.
 
-![alt text here](project_workflow.png)
 
 ## What can you find here
 This repository comprises three main parts:
 1. corpus of thirteen novels in English annotated by our tool with full names of protagonists (see *annotated_corpus/*)
 2. data set containing: 
     + the following  information about each novel:
-		+ full plain text of novel (see *data/complete_literary_texts/*)
-		+ list of literary characters scraped from Wikipedia (see *data/lists_of_characters/*)
-		+ set of named entities of category person not recognized by standard NER model (see *data/ner_training_sets/training_set_1/not_recognized_named_entities_person/*)
-	+ testing sets (small and large) along with gold standards annotated with general tag PERSON and gold standards annotated with full names of literary characters (see *data/testing_sets/*)
-	+ two training sets for fine-tuning NER model (see *data/ner_training_sets/*)
-	+ fine-tuned NER model from SpaCy library to be reused or fine-tuned further (see *data/results/ner_model/fine_tuned/fine_tuned_ner_model/*)
+        + full plain text of novel (see *data/complete_literary_texts/*)
+        + list of literary characters scraped from Wikipedia (see *data/lists_of_characters/*)
+    + testing sets (see *data/testing_sets/test/*)
+    + gold standards annotations of tag PERSON (see *data/testing_sets/test_person_gold_standard_corrected/*)
+    + gold standards annotations of full names of literary characters (see *data/testing_sets/test_names_gold_standard_corrected/*)
+    + fine-tuned NER model from Flair library to be reused or fine-tuned further (see *data/results/ner_model/*)
 3. **ProtagonistTagger** tool itself with several scripts that make it easy to reuse.
 
 ## How to use the protagonistTagger
+
 In order to make the tool easy to use, there are several scripts offering most important functionalities. The scripts are located in *protagonist_tagger/tool/scripts* and they can be simply launched from terminal with a set of necessary arguments. The following scripts are available:
 + *annotate_ner.py* - given NER model, novels texts (either full or only some extracted sentences), it annotates the given text set with general tag PERSON using given NER model;
-+ *annotate_protagonist.py* - given list of literary characters, NER model, novels texts (either full or only some extracted sentences) and precision (for approximate string matching), it annotates the given text with names of literary characters from the list
-+ *compute_metrics.py* - given testing set annotated by NER model or by protagonistTagger and a gold standard, it computes metrics such as precision, recall, F-measure
++ *annotate_protagonist.py* - given list of literary characters, NER model, novels texts (either full or only some extracted sentences), precision (for approximate string matching) and set of rules, it annotates the given text with names of literary characters from the list
++ *annotate_coreference.py* - given list of literary characters, CR model, novels texts (either full or only some extracted sentences), it detects clusters of mentions in the given text
++ *merge_coreference.py* - given results of NER, EL and CR steps, it combines them and returns text annotated with mentions of protagonists in all forms (proper nouns, pronouns and nominals)
++ *compute_metrics.py* - given predictions generated by the model and a gold standard, it computes metrics 
 
-
-[comment]: <> (+ *fine_tune_ner_model.py* - given training set&#40;s&#41;, it fine-tunes a predefined spacy NER model and saves it to a given directory to be reused)
-[comment]: <> (+ *generate_test_data.py* - given full plain texts of novels, it extracts sentences contiaing named entites of category *person*  in order to create testing sets)
-[comment]: <> (+ *prepare_training_set_with_common_names_for_ner_fine_tuning.py* - given a set of common English names, lists of literary characters and full plain texts of novels, it creates training set for fine-tuning NER model by injecting to sentences extracted from novels &#40;and containing at least one named entity of category *person*&#41; common English names)
-[comment]: <> (+ *prepare_training_set_with_not_recognized_named_entities_for_ner_fine_tuning.py* - given sets of named entities of category *person* not recognized by standard NER model and full plain tests of novels, it creates training set for NER model fine-tuning by extracting from novels and semi-automatically annotating with general tag PERSON sentences with not recognized named entites)
-
-Detailed information about input arguments and functionalities implemented in each script can be found in comments in corresponding python files. Each script can be run from terminal (from \protagonist_tagger directory) according to the same schema:
-
-`$ python -m tool.scripts.<script_name> arg1 arg2 arg3 arg4`
-
-Arguments should be separated with single space and given without any quotation marks. For example:
-
-`$ python -m tool.scripts.annotate_ner data/novels_titles/large_set.txt data/testing_sets/test/ experiments/test_experiment flair ner-fast`
+Detailed information about input arguments and functionalities implemented in each script can be found in comments in corresponding python files. 
