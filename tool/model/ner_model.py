@@ -12,8 +12,15 @@ class NERModel:
 
     def get_ner_results(self, data, full_text=False):
         if full_text:
-            text, entities = self.get_doc_entities(data)
-            results = [{"content": text, "entities": entities}]
+            entities = []
+            prefix = 0
+            for text_part_id, text_part in enumerate(tqdm(data, leave=False)):
+                self.logger.debug("TEXT PART " + str(text_part_id) + ": " + text_part)
+                text, entities_part = self.get_doc_entities(text_part, prefix)
+                self.logger.debug("ENTITIES: " + str(entities))
+                prefix += len(text_part) + 1
+                entities += entities_part
+            results = [{"content": '\n'.join(data), "entities": entities}]
         else:
             results = []
             for sent_id, sentence in enumerate(tqdm(data, leave=False)):

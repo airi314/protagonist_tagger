@@ -15,7 +15,7 @@ class FlairModel(NERModel):
         self.model = SequenceTagger.load(model_path)
         self.logger.info('Flair model "' + model_path + '" loaded.')
 
-    def get_doc_entities(self, text):
+    def get_doc_entities(self, text, prefix=0):
         doc = Sentence(text)
         self.model.predict(doc)
 
@@ -37,9 +37,9 @@ class FlairModel(NERModel):
                         personal_title = self.recognize_personal_title(
                             ent_id, doc)
                         entities.append(
-                            [start, end, "PERSON", personal_title])
+                            [start+prefix, end+prefix, "PERSON", personal_title])
                     else:
-                        entities.append([start, end, "PERSON"])
+                        entities.append([start+prefix, end+prefix, "PERSON"])
 
         return text, entities
 

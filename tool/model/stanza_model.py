@@ -12,7 +12,7 @@ class StanzaModel(NERModel):
                                      logging_level='ERROR', use_gpu=False)
         self.logger.info('Stanza model loaded.')
 
-    def get_doc_entities(self, text):
+    def get_doc_entities(self, text, prefix=0):
         doc = self.model(text)
         entities = []
 
@@ -28,9 +28,9 @@ class StanzaModel(NERModel):
                 if self.save_personal_titles:
                     personal_title = self.recognize_personal_title(ent, doc)
                     entities.append(
-                        [ent.start_char, ent.end_char, "PERSON", personal_title])
+                        [ent.start_char+prefix, ent.end_char+prefix, "PERSON", personal_title])
                 else:
-                    entities.append([ent.start_char, ent.end_char, "PERSON"])
+                    entities.append([ent.start_char+prefix, ent.end_char+prefix, "PERSON"])
 
         return text, entities
 

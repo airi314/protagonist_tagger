@@ -10,7 +10,7 @@ class SpacyModel(NERModel):
         self.model = spacy.load(model_path)
         self.logger.info('Spacy model "' + model_path + '" loaded.')
 
-    def get_doc_entities(self, text):
+    def get_doc_entities(self, text, prefix=0):
         doc = self.model(text)
         entities = []
 
@@ -26,9 +26,9 @@ class SpacyModel(NERModel):
                         "ENTITY WITHOUT TITLE: " + text[start:end])
                 if self.save_personal_titles:
                     personal_title = self.recognize_personal_title(doc, index)
-                    entities.append([start, end, "PERSON", personal_title])
+                    entities.append([start+prefix, end+prefix, "PERSON", personal_title])
                 else:
-                    entities.append([start, end, "PERSON"])
+                    entities.append([start+prefix, end+prefix, "PERSON"])
 
         return text, entities
 

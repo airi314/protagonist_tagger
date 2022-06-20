@@ -10,7 +10,7 @@ class NLTKModel(NERModel):
         super().__init__(save_personal_titles, fix_personal_titles)
         self.logger.info('NLTK model loaded.')
 
-    def get_doc_entities(self, text):
+    def get_doc_entities(self, text, prefix=0):
         entities = []
         offset = 0
         spans = []
@@ -34,9 +34,9 @@ class NLTKModel(NERModel):
                     if self.save_personal_titles:
                         personal_title = self.recognize_personal_title(
                             text, chunk_id)
-                        entities.append([start, end, "PERSON", personal_title])
+                        entities.append([start+prefix, end+prefix, "PERSON", personal_title])
                     else:
-                        entities.append([start, end, "PERSON"])
+                        entities.append([start+prefix, end+prefix, "PERSON"])
                 except IndexError:
                     pass
 
