@@ -28,7 +28,7 @@ def main(titles_path, characters_lists_dir_path, testing_data_dir_path,
         filemode='w'
     )
 
-    for title in tqdm(titles[9:]):
+    for title in tqdm(titles):
         names_matcher.logger.debug("TITLE: " + title)
         test_data = get_test_data_for_novel(
                 title, testing_data_dir_path, gutenberg, pride_and_prejudice)

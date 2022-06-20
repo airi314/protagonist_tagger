@@ -11,7 +11,7 @@ from tool.preprocessing import get_test_data_for_novel
 
 
 def main(titles_path, testing_data_dir_path, generated_data_dir,
-         library, model_name, save_singletons, gutenberg, save_conll,
+         library, model_name, save_singletons, save_conll, gutenberg,
          pride_and_prejudice):
     titles = read_file_to_list(titles_path)
     model = load_model(library, model_name, save_singletons)
@@ -21,7 +21,7 @@ def main(titles_path, testing_data_dir_path, generated_data_dir,
         level=logging.DEBUG,
         filemode='w')
 
-    for title in tqdm(titles[-1:]):
+    for title in tqdm(titles):
         test_data = get_test_data_for_novel(
                 title, testing_data_dir_path, gutenberg, pride_and_prejudice)
 
@@ -69,5 +69,5 @@ if __name__ == "__main__":
 
     opt = parser.parse_args()
     main(opt.titles_path, opt.testing_data_dir_path, opt.generated_data_dir,
-         opt.library, opt.model_name, opt.save_singletons, opt.split_paragraphs,
+         opt.library, opt.model_name, opt.save_singletons, opt.save_conll,
          opt.gutenberg, opt.pride_and_prejudice)
