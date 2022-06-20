@@ -1,6 +1,8 @@
 import os
+import re
 
-from tool.file_and_directory_management import read_file, read_file_to_list, read_sentences_from_file
+from tool.file_and_directory_management import read_file, read_file_to_list, \
+    read_sentences_from_file
 
 
 def get_litbank_sentences(path):
@@ -32,25 +34,45 @@ def get_litbank_parts(path, max_length=512):
     return parts
 
 
-def get_test_data_for_novel(title, testing_data_dir_path, full_text):
-    if full_text:
-        return get_litbank_text(os.path.join(testing_data_dir_path, title))
+def get_test_data_for_novel(title, testing_data_dir_path,
+                            gutenberg, pride_and_prejudice):
+    if pride_and_prejudice:
+        return get_pride_and_prejudice(title, testing_data_dir_path)
+    elif gutenberg:
+        return get_gutenberg(title, testing_data_dir_path, 10000)
     else:
         return read_sentences_from_file(
             os.path.join(testing_data_dir_path, title))
 
 
-def get_pride_and_prejudice(title, testing_data_dir_path, full_text=True):
+def get_pride_and_prejudice(title, testing_data_dir_path):
     text = read_file(os.path.join(testing_data_dir_path, title))
-    if full_text:
-        return text
-    else:
-        return text.split('\n\n')
-    # print(parts[0])
-    # parts = [' '.join(p.split('\n')) for p in parts]
-    # print(parts[0])
-    # if full_text:
-    #     return '\n\n'.join(parts)
+    return text.split('\n\n')
+
+
+def get_gutenberg(title, testing_data_dir_path, max_length):
+    text = read_file(os.path.join(testing_data_dir_path, title))
+    start = re.search("\*\*\* START OF .*", text).span()[1]
+    end = re.search("\*\*\* END OF .*", text).span()[0]
+    text = text[start:end].strip()
+    if not max_length:
+        return [text]
+    text_parts = text.split('\n\n')
+    text_parts = [text_part.strip().replace('\n', ' ')
+                  for text_part in text_parts]
+    parts = []
+    current_part = ''
+    counter = 0
+    for part in text_parts:
+        n = len(part)
+        if counter + n <= max_length:
+            current_part += ' ' + part
+            counter += n
+        else:
+            parts.append(current_part)
+            current_part = part
+            counter = n
+    return parts
 
 
 def get_characters_for_novel(title, characters_lists_dir_path):

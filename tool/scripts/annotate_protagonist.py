@@ -5,14 +5,15 @@ from tqdm import tqdm
 import logging
 
 from tool.names_matcher import NamesMatcher
-from tool.preprocessing import get_test_data_for_novel, get_characters_for_novel, get_pride_and_prejudice
+from tool.preprocessing import get_test_data_for_novel, get_characters_for_novel
 from tool.file_and_directory_management import write_text_to_file, read_file_to_list, dir_path, file_path, mkdir
 from tool.annotations_utils import read_annotations
 
 
 def main(titles_path, characters_lists_dir_path, testing_data_dir_path,
          generated_data_dir, library, ner_model, precision, matcher_rules,
-         fix_personal_titles, full_text, pride_and_prejudice, save_ner):
+         fix_personal_titles, gutenberg, pride_and_prejudice, save_ner):
+    full_text = True if (gutenberg or pride_and_prejudice) else False
     titles = read_file_to_list(titles_path)
     names_matcher = NamesMatcher(
         precision,
@@ -27,14 +28,10 @@ def main(titles_path, characters_lists_dir_path, testing_data_dir_path,
         filemode='w'
     )
 
-    for title in tqdm(titles):
+    for title in tqdm(titles[9:]):
         names_matcher.logger.debug("TITLE: " + title)
-        if pride_and_prejudice:
-            test_data = get_pride_and_prejudice(
-                title, testing_data_dir_path, False)
-        else:
-            test_data = get_test_data_for_novel(
-                title, testing_data_dir_path, full_text)
+        test_data = get_test_data_for_novel(
+                title, testing_data_dir_path, gutenberg, pride_and_prejudice)
         characters = get_characters_for_novel(title, characters_lists_dir_path)
         ner_path = os.path.join(generated_data_dir, 'ner', title + ".json")
 
@@ -58,29 +55,37 @@ def main(titles_path, characters_lists_dir_path, testing_data_dir_path,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('titles_path', type=file_path,
-                        help="path to .txt file with titles of novels for which NER model should be tested")
+                        help="path to .txt file with titles of novels")
     parser.add_argument('characters_lists_dir_path', type=dir_path,
                         help="path to the directory containing .txt files with novel characters")
     parser.add_argument('testing_data_dir_path', type=dir_path,
-                        help="path to the directory containing .txt files with sentences extracted from novels "
-                             "to be included in the testing process")
+                        help="path to the directory containing .txt files with novel text")
     parser.add_argument('generated_data_dir', type=str,
                         help="directory where generated data should be stored")
     parser.add_argument('library', type=str, default='spacy', nargs='?',
-                        help="library which should be used to test NER")
+                        help="library which should be used")
     parser.add_argument('ner_model', type=str, default=None, nargs='?',
-                        help="model from chosen library which should be used to test NER")
+                        help="model from chosen library which should be used")
     parser.add_argument('--precision', type=int, default=75,
                         help="precision threshold for string similarity")
-    parser.add_argument('--fix_personal_titles', action='store_true')
-    parser.add_argument('--full_text', action='store_true')
-    parser.add_argument('--pride_and_prejudice', action='store_true')
-    parser.add_argument('--save_ner', action='store_true')
-    parser.add_argument('--not_check_diminutive', action='store_true')
-    parser.add_argument('--not_match_personal_title_100', action='store_true')
-    parser.add_argument('--not_match_personal_title', action='store_true')
-    parser.add_argument('--not_match_title_gender', action='store_true')
-    parser.add_argument('--not_match_entity_gender', action='store_true')
+    parser.add_argument('--fix_personal_titles', action='store_true',
+                        help="boolean, if True then annotations will of personal titles will be fixed")
+    parser.add_argument('--gutenberg', action='store_true',
+                        help="boolean, if True then input file is preprocessed according to the Gutenberg ebooks file format")
+    parser.add_argument('--pride_and_prejudice', action='store_true',
+                        help="boolean, if True then input file is preprocessed according Pride_and_Prejudice corpus format")
+    parser.add_argument('--save_ner', action='store_true',
+                        help="boolean, if True then annotations of NER will be saved or loaded from disk if they exist")
+    parser.add_argument('--not_check_diminutive', action='store_true',
+                        help="boolean, if True check_diminutive rule is disabled")
+    parser.add_argument('--not_match_personal_title_100', action='store_true',
+                        help = "boolean, if True match_personal_title_100 rule is disabled")
+    parser.add_argument('--not_match_personal_title', action='store_true',
+                        help = "boolean, if True match_personal_title rule is disabled")
+    parser.add_argument('--not_match_title_gender', action='store_true',
+                        help="boolean, if True match_title_gender rule is disabled")
+    parser.add_argument('--not_match_entity_gender', action='store_true',
+                        help="boolean, if True match_entity_gender rule is disabled")
 
     opt = parser.parse_args()
     rules = {
@@ -93,5 +98,5 @@ if __name__ == "__main__":
 
     main(opt.titles_path, opt.characters_lists_dir_path, opt.testing_data_dir_path,
          opt.generated_data_dir, opt.library, opt.ner_model, opt.precision,
-         rules, opt.fix_personal_titles, opt.full_text,
+         rules, opt.fix_personal_titles, opt.gutenberg,
          opt.pride_and_prejudice, opt.save_ner)

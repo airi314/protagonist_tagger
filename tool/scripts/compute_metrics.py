@@ -33,7 +33,7 @@ def main(titles_path, gold_standard_dir_path,
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('titles_path', type=file_path,
-                        help="path to .txt file with titles of novels for which NER model should be tested")
+                        help="path to .txt file with titles of novels")
     parser.add_argument('gold_standard_dir_path', type=dir_path,
                         help="path to the directory with .json files containing goldstandard entities")
     parser.add_argument('testing_set_dir_path', type=dir_path,
