@@ -138,9 +138,11 @@ def prepare_artificial_data(titles, output_dir, gold_standard_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('dataset_name', type=str)
-    parser.add_argument('output_dir', type=str)
-    parser.add_argument('gold_standard_path', type=dir_path)
-
+    parser.add_argument('dataset_name', type=str,
+                        help='Name of dataset. One of protagonist, protagonist_artificial or litbank.')
+    parser.add_argument('output_dir', type=str,
+                        help="directory where generated data should be stored")
+    parser.add_argument('gold_standard_path', type=dir_path,
+                        help="directory where gold-standard data are stored")
     opt = parser.parse_args()
     main(opt.dataset_name, opt.output_dir, opt.gold_standard_path)
