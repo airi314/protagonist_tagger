@@ -1,13 +1,18 @@
 # ProtagonistTagger 
+
 ## Tagging Mentions of Persons -- Recognition and Disambiguation -- in Natural Language Texts
 
-Natural Language Understanding (NLU) is a constantly evolving field of science that allows computers to understand more complex texts. It can be very beneficial in literary text analysis. The first and most crucial step in understanding the story of a book is detecting and linking its protagonists.
+This work is a continuation and an extension of a previous project in the literature domain -- thesis *Preparation of Sets and Machine Learning Models for Recognizing Names of Literary Characters* ([WerLaj/protagonist_tagger](https://github.com/WerLaj/protagonist_tagger)). The final effect of that work was a tool that detects person-type entities in text and then assigns them to specific heroes. 
 
-This work is a continuation and an extension of a previous project in the literature domain -- thesis *Preparation of Sets and Machine Learning Models for Recognizing Names of Literary Characters* written by Weronika Łajewska. The final effect of that work was a tool that detects person-type entities in text and then assigns them to specific heroes. 
+In this work, I have improved the tool and tests, particularly:
+* enhanced the results achieved by the NER model in recognizing people, 
+* extended and made more general the rules for heroes' disambiguation, *
+* incorporated detection of mentions of characters in the form of pronouns and nominals; it also includes adapting open datasets to the Coreference Resolution and using them to evaluate *protagonistTagger* tool
 
-In this work, I have improved the tool and tests, particularly: (1) enhanced the results achieved by the NER model in recognizing people, (2) extended and made more general the rules for heroes' disambiguation, and (3) incorporated detection of mentions of characters in the form of pronouns and nominals. This work also includes adapting open datasets to the Coreference Resolution and using them to evaluate *protagonistTagger* tool.
+Figure below presents expected output of the tool.Given text is a conversation between two main characters of the novel *Pride and Prejudice* by Jane Austen - Mr. Bennet and his wife, Mrs. Bennet. During the conversation, they also mentioned the third character - Mrs. Long. In this figure, all mentions of these characters are marked by corresponding colors - Mr. Bennet by red, Mrs. Bennet by blue and Mrs. Long by green. 
 
-[comment]: <> (![alt text here]&#40;example_output.png&#41;)
+<img src="example_output.png" alt="drawing" style="width:600px;"/>
+
 
 ## Installation
 
@@ -39,7 +44,7 @@ The workflow of the refined version of the *protagonistTagger* tool consists of 
 
 ## What can you find here
 This repository comprises three main parts:
-1. corpus of thirteen novels in English annotated by our tool with full names of protagonists (see *annotated_corpus/*)
+1. corpus of twelve novels in English annotated by our tool with full names of protagonists (see *annotated_corpus/*)
 2. data set containing: 
     + the following  information about each novel:
         + full plain text of novel (see *data/complete_literary_texts/*)
@@ -47,16 +52,18 @@ This repository comprises three main parts:
     + testing sets (see *data/testing_sets/test/*)
     + gold standards annotations of tag PERSON (see *data/testing_sets/test_person_gold_standard_corrected/*)
     + gold standards annotations of full names of literary characters (see *data/testing_sets/test_names_gold_standard_corrected/*)
-    + fine-tuned NER model from Flair library to be reused or fine-tuned further (see *data/results/ner_model/*)
 3. **ProtagonistTagger** tool itself with several scripts that make it easy to reuse.
+    + Python scripts for annotating text with different annotation layers (see *tool/scripts/* and section below)
+    + bash script for evaluating different NER and CR models and reproducing results from the thesis (see *tool/evaluation/*)
 
 ## How to use the protagonistTagger
 
 In order to make the tool easy to use, there are several scripts offering most important functionalities. The scripts are located in *protagonist_tagger/tool/scripts* and they can be simply launched from terminal with a set of necessary arguments. The following scripts are available:
-+ *annotate_ner.py* - given NER model, novels texts (either full or only some extracted sentences), it annotates the given text set with general tag PERSON using given NER model;
++ *annotate_ner.py* - given NER model, novels texts (either full or only some extracted sentences), it annotates the given text with general tag PERSON using given NER model;
 + *annotate_protagonist.py* - given list of literary characters, NER model, novels texts (either full or only some extracted sentences), precision (for approximate string matching) and set of rules, it annotates the given text with names of literary characters from the list
 + *annotate_coreference.py* - given list of literary characters, CR model, novels texts (either full or only some extracted sentences), it detects clusters of mentions in the given text
-+ *merge_coreference.py* - given results of NER, EL and CR steps, it combines them and returns text annotated with mentions of protagonists in all forms (proper nouns, pronouns and nominals)
-+ *compute_metrics.py* - given predictions generated by the model and a gold standard, it computes metrics 
++ *merge_ner_coreference.py* - given results of NER, EL and CR steps, it combines them and returns text annotated with mentions of protagonists in all forms (proper nouns, pronouns and nominals)
++ *compute_metrics.py* - given predictions generated by the model and gold-standard, it computes metrics 
++ *prepare_training_data.py* -- given training data and some model parameters, it fine-tuned *ner-large* model. Using default values allowst allows reproducing results.
 
-Detailed information about input arguments and functionalities implemented in each script can be found in comments in corresponding python files. 
+Detailed information about input arguments and functionalities implemented in each script can be found in comments in corresponding Python files. 
