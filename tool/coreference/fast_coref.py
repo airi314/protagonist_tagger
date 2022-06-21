@@ -1,8 +1,9 @@
-from inference.model_inference import Inference
-from tool.coreference.coreference_model import CoreferenceModel
 import os
 import sys
 sys.path.append('resources/fast-coref/src')
+
+from inference.model_inference import Inference
+from tool.coreference.coreference_model import CoreferenceModel
 
 
 class FastCoref(CoreferenceModel):
@@ -13,13 +14,12 @@ class FastCoref(CoreferenceModel):
         self.model.device = 'cpu'
         self.save_singletons = save_singletons
 
-    def get_clusters(self, doc, start_cluster_id=None, save_conll=False):
+    def get_clusters(self, doc, start_cluster_id=None, save_conll=False, prefix=0):
         output = self.model.perform_coreference(doc)
-        print('doc', doc[:200])
         if save_conll:
             return self.write_conll(output, start_cluster_id)
         else:
-            return self.write_json(doc, output)
+            return self.write_json(doc, output, prefix)
 
     def write_conll(self, output, start_cluster_id):
 
@@ -55,12 +55,10 @@ class FastCoref(CoreferenceModel):
 
         return results, start_cluster_id + cluster_id if cluster_id else start_cluster_id
 
-    def write_json(self, doc, output):
-        results = {'content': doc, 'clusters': []}
-        print('content', results['content'][:200])
+    def write_json(self, doc, output, prefix=0):
+        results = []
         output['tokenized_doc']['spans'] = self.get_spans(doc, output)
         for cluster in output['clusters']:
-            # print('new cluster', cluster)
             cluster_positions = []
             if not self.save_singletons and len(cluster) < 2:
                 continue
@@ -71,31 +69,16 @@ class FastCoref(CoreferenceModel):
                     orig_token_end = output['tokenized_doc']['subtoken_map'][token_end]
                     start_position = output['tokenized_doc']['spans'][orig_token_start][0]
                     end_position = output['tokenized_doc']['spans'][orig_token_end][1]
-                    # if not doc[start_position:end_position] == mention[1]:
-                    #     print(doc[start_position:end_position], mention[1])
-                    # delay_end = 0
-                    # while doc[start_position:end_position] != mention[1]:
-                    #     print(doc[start_position:end_position])
-                    #     if mention[1].startswith(doc[start_position:end_position]):
-                    #         delay_end += 1
-                    #         end_position = tokenized_doc.token_to_chars(orig_token_end + delay + delay_end).end
-                    #     else:
-                    #         delay += 1
-                    #         start_position = tokenized_doc.token_to_chars(orig_token_start + delay).start
-                    #         end_position = tokenized_doc.token_to_chars(orig_token_end + delay).end
-                    # print(doc[start_position:end_position])
-                    cluster_positions.append([start_position, end_position])
-                results['clusters'].append(cluster_positions)
+                    cluster_positions.append([start_position+prefix, end_position+prefix])
+                results.append(cluster_positions)
         return results
 
     def get_spans(self, doc, output):
         position = 0
         token_spans = []
         for token in output['tokenized_doc']['orig_tokens']:
-            # print(token)
             start_position = doc[position:].find(token)
             token_spans.append([position + start_position,
                                 position + start_position + len(token)])
             position = position + start_position + len(token)
-            # print(position + start_position, position + start_position + len(token))
         return token_spans
