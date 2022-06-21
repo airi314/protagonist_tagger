@@ -16,10 +16,10 @@ Figure below presents expected output of the tool.Given text is a conversation b
 
 ## Installation
 
-To clone this repository you should run following command:
+To install required libraries run the following command:
 
 ```bash
-git clone https://github.com/airi314/protagonist_tagger
+pip install -r requirements.txt
 ```
 
 We use several repositories which should be cloned into `resources` directory.
